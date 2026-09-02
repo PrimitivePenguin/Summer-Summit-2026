@@ -112,3 +112,18 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# OS files
+.DS_Store
+.DS_Store.meta
+Thumbs.db
+Thumbs.db.meta
+
+# JetBrains Rider (if you use it)
+.idea/
+
+# VS Code
+.vscode/
+
+# URP pipeline assets are intentionally tracked (remove this if you don't want that)
+# /[Aa]ssets/Settings/
