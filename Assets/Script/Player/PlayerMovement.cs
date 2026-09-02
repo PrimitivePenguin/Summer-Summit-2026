@@ -26,6 +26,31 @@ public class PlayerMovement : MonoBehaviour
     }
 
     public void Move(InputAction.CallbackContext context) {
+        if (context.performed){
+            moveInput = context.ReadValue<Vector2>();
+
+            if (animator != null){
+                animator.SetBool("isWalking", true);
+                animator.SetFloat("InputX", moveInput.x);
+                animator.SetFloat("InputY", moveInput.y);
+
+                // save direction
+                animator.SetFloat("LastInputX", moveInput.x);
+                animator.SetFloat("LastInputY", moveInput.y);
+            }
+        }
+        
+        else if (context.canceled){
+            moveInput = Vector2.zero;
+
+            if (animator != null){
+                animator.SetBool("isWalking", false);
+                animator.SetFloat("InputX", 0);
+                animator.SetFloat("InputY", 0);
+                // Don't touch last input here so it remembers when you stop moving (lol)
+            }
+        }
+        /*
         animator.SetBool("isWalking", true);
         if (context.canceled) {
             animator.SetBool("isWalking", false);
@@ -37,6 +62,7 @@ public class PlayerMovement : MonoBehaviour
         // Get input for input -> use this to move with animation
         animator.SetFloat("InputX", moveInput.x); 
         animator.SetFloat("InputY", moveInput.y); 
+        */
         
     }
 }
