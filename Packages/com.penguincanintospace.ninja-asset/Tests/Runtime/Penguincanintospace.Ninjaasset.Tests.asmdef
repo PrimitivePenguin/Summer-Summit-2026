@@ -1,0 +1,11 @@
+{
+    "name": "Penguincanintospace.Ninjaasset.Tests",
+    "references": [
+        "Penguincanintospace.Ninjaasset"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": []
+}

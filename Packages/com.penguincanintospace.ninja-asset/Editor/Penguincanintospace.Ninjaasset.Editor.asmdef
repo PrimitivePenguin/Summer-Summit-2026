@@ -1,0 +1,10 @@
+{
+    "name": "Penguincanintospace.Ninjaasset.Editor",
+    "references": [
+      "Penguincanintospace.Ninjaasset"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}

@@ -1,0 +1,14 @@
+{
+    "name": "Penguincanintospace.Ninjaasset.Editor.Tests",
+    "references": [
+        "Penguincanintospace.Ninjaasset.Editor",
+        "Penguincanintospace.Ninjaasset"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": []
+}
