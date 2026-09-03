@@ -133,8 +133,8 @@ public class EnemyMovement : MonoBehaviour
         }
     }
     private void Update()
-{
-    // Move(Vector2.right, moveSpeed);   // slides right, should stop at a wall
-    
-}
+    {
+        // Move(Vector2.right, moveSpeed);   // slides right, should stop at a wall
+        
+    }
 }

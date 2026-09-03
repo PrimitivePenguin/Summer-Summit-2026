@@ -16,7 +16,7 @@ public class EnemyData : ScriptableObject
     public float loadDistance = 15f;      // beyond this, fully idle
     public float awarenessDecayRate = 0.5f; // how fast awareness drops after losing sight
 
-    [Header("Aiming")]
+    [Header("Aiming")] // Assume isTurnRate is on
     public float turnRate = 180f;         // degrees per second
 
     [Header("Combat")]

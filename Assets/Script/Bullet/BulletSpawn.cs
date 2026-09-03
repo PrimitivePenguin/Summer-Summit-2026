@@ -65,7 +65,7 @@ public class BulletSpawn : MonoBehaviour
         Debug.Log($"[BulletSpawn.cs] - Fire() isBursting: {isBursting}");
         if (isBursting || timer > 0f) {return false;} // Prevents another burst from starting while current is active
         isBursting = true;
-        timer = GetSpawnData().cooldown;
+        timer = GetSpawnData().cooldown + (GetSpawnData().burstDelay * (GetSpawnData().numBullets - 1)); // cooldown + burstdelay * numbullets
         StartCoroutine(SpawnBurstCoroutine());
         return true;
     }
