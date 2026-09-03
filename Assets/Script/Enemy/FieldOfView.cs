@@ -6,6 +6,7 @@ public class FieldOfView : MonoBehaviour
     [Header("FOV Settings")]
     public float fovAngle = 90f;
     public float viewDistance = 5f;
+    public int rayCount = 5;
     [SerializeField] private LayerMask obstacleMask; // Set to "Collision" in Inspector
 
     [Header("FOV Visual")]
@@ -38,7 +39,7 @@ public class FieldOfView : MonoBehaviour
         }
 
         // Setup visual mesh
-        mesh = new Mesh { name = "FOV Triangle Mesh" };
+        mesh = new Mesh { name = "FOV Mesh" };
         GetComponent<MeshFilter>().mesh = mesh;
         meshRenderer = GetComponent<MeshRenderer>();
 
@@ -72,7 +73,7 @@ public class FieldOfView : MonoBehaviour
         meshRenderer.enabled = showFOV;
         if (showFOV)
         {
-            DrawTriangleFOV();
+            DrawFOV();
         }
     }
 
@@ -138,6 +139,54 @@ public class FieldOfView : MonoBehaviour
         return hit.collider == null;
     }
 
+    void DrawFOV()
+    {
+        //Debug.Log($"FOV parent: {transform.parent?.name}, FOV world pos: {transform.position}, FOV local pos: {transform.localPosition}");
+        float angleIncrease = fovAngle / rayCount;
+        float currentAngle = fovAngle / 2f;     // start at left edge of cone
+
+        Vector3 worldOrigin = transform.position; // world space for raycast
+        Vector3[] vertices = new Vector3[rayCount + 2];
+        Vector2[] uv = new Vector2[vertices.Length];
+        int[] triangles = new int[rayCount * 3];
+
+        vertices[0] = Vector3.zero; // local origin
+
+        for (int i = 0; i <= rayCount; i++)
+        {
+            Vector3 localDir = GetVectorFromAngle(currentAngle);
+
+            // world space direction — accounts for parent rotation from AimController
+            Vector3 worldDir = transform.TransformDirection(localDir).normalized;
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                worldOrigin, worldDir, viewDistance,
+                LayerMask.GetMask("Collision")
+            );
+
+            // hit → shorten ray to wall; no hit → full distance
+            vertices[i + 1] = hit.collider != null
+                ? transform.InverseTransformPoint(hit.point)  // world → local
+                : localDir * viewDistance;                     // already local
+
+            if (i < rayCount)
+            {
+                triangles[i * 3] = 0;
+                triangles[i * 3 + 1] = i + 1;
+                triangles[i * 3 + 2] = i + 2;
+            }
+
+            currentAngle -= angleIncrease;
+        }
+
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.uv = uv;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+
+    // Helper functions
     // Converts angle to local direction where 0 deg points up
     static Vector3 GetVectorFromAngle(float angle)
     {

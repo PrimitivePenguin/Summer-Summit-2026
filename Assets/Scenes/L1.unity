@@ -1784,7 +1784,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.6988637, y: 1.0630599, z: -10}
+  m_LocalPosition: {x: 2.9123054, y: 1.06707, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3459,7 +3459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimController
   isTurnRate: 1
-  turnRate: 18
+  turnRate: 180
 --- !u!114 &969901970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12823,9 +12823,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawn
   spawnDatas:
-  - {fileID: 11400000, guid: 10bee173d2d4f7a458e8f7ff6f15e63b, type: 2}
-  isSeqRandom: 0
-  isAutomaticSpawn: 0
+  - {fileID: 11400000, guid: a24b9f5e66ba95f4095230ed380d3abc, type: 2}
+  isSeqRandom: 1
+  isAutomaticSpawn: 1
   bulletLayer: 9
   click:
     m_Name: Click
@@ -13155,6 +13155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
   fovAngle: 90
   viewDistance: 5
+  rayCount: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
