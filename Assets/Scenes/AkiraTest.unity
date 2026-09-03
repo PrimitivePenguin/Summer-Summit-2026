@@ -12824,7 +12824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawn
   spawnDatas:
   - {fileID: 11400000, guid: 10bee173d2d4f7a458e8f7ff6f15e63b, type: 2}
-  isSeqRandom: 0
+  isSeqRandom: 1
   isAutomaticSpawn: 0
   bulletLayer: 9
   click:
@@ -13158,7 +13158,7 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
-  showFOV: 0
+  showFOV: 1
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
 --- !u!4 &1618902030
 Transform:
