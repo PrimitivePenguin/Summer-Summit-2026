@@ -1,5 +1,156 @@
 using UnityEngine;
 
+[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+public class FieldOfView : MonoBehaviour
+{
+    [Header("FOV Settings")]
+    public float fovAngle = 90f;
+    public float viewDistance = 5f;
+    [SerializeField] private LayerMask obstacleMask; // Set to "Collision" in Inspector
+
+    [Header("FOV Visual")]
+    public bool showFOV = true;
+    public Color fovColor = new Color(1f, 1f, 0f, 0.3f);
+
+    private MeshRenderer meshRenderer;
+    private Material mat;
+    private Mesh mesh;
+    private Transform playerTransform;
+
+    void Start()
+    {
+        // Reset local transform relative to enemy parent
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
+
+        // Auto-fill obstacle mask if left default
+        if (obstacleMask == 0)
+        {
+            obstacleMask = LayerMask.GetMask("Collision");
+        }
+
+        // Cache player reference
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            playerTransform = player.transform;
+        }
+
+        // Setup visual mesh
+        mesh = new Mesh { name = "FOV Triangle Mesh" };
+        GetComponent<MeshFilter>().mesh = mesh;
+        meshRenderer = GetComponent<MeshRenderer>();
+
+        // Material setup
+        mat = new Material(Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default"));
+        mat.SetFloat("_Surface", 1f);
+        mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+        mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+        mat.SetInt("_ZWrite", 0);
+        mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        mat.renderQueue = 3000;
+        mat.color = fovColor;
+        meshRenderer.material = mat;
+
+        // Sync sorting layer with parent sprite
+        SpriteRenderer parentSprite = transform.parent?.GetComponent<SpriteRenderer>();
+        if (parentSprite != null)
+        {
+            meshRenderer.sortingLayerName = parentSprite.sortingLayerName;
+            meshRenderer.sortingOrder = parentSprite.sortingOrder + 1;
+        }
+        else
+        {
+            meshRenderer.sortingLayerName = "Default";
+            meshRenderer.sortingOrder = 1;
+        }
+    }
+
+    void Update()
+    {
+        meshRenderer.enabled = showFOV;
+        if (showFOV)
+        {
+            DrawTriangleFOV();
+        }
+    }
+
+    // 2 Raycasts: 1 for left edge, 1 for right edge
+    void DrawTriangleFOV()
+    {
+        Vector3[] vertices = new Vector3[3];
+        Vector2[] uv = new Vector2[3];
+        int[] triangles = new int[3];
+
+        vertices[0] = Vector3.zero; // Local origin
+        uv[0] = new Vector2(0.5f, 0f);
+
+        float halfAngle = fovAngle * 0.5f;
+
+        // 1. Left boundary raycast
+        Vector3 leftLocalDir = GetVectorFromAngle(halfAngle);
+        Vector3 leftWorldDir = transform.TransformDirection(leftLocalDir).normalized;
+        RaycastHit2D hitLeft = Physics2D.Raycast(transform.position, leftWorldDir, viewDistance, obstacleMask);
+        vertices[1] = hitLeft.collider != null ? transform.InverseTransformPoint(hitLeft.point) : leftLocalDir * viewDistance;
+        uv[1] = new Vector2(0f, 1f);
+
+        // 2. Right boundary raycast
+        Vector3 rightLocalDir = GetVectorFromAngle(-halfAngle);
+        Vector3 rightWorldDir = transform.TransformDirection(rightLocalDir).normalized;
+        RaycastHit2D hitRight = Physics2D.Raycast(transform.position, rightWorldDir, viewDistance, obstacleMask);
+        vertices[2] = hitRight.collider != null ? transform.InverseTransformPoint(hitRight.point) : rightLocalDir * viewDistance;
+        uv[2] = new Vector2(1f, 1f);
+
+        // Connect triangle
+        triangles[0] = 0;
+        triangles[1] = 1;
+        triangles[2] = 2;
+
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.uv = uv;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
+    }
+
+    // 1 Raycast: Math checks run first, raycast only fires if player is inside the cone
+    public bool CanSeePlayer()
+    {
+        if (playerTransform == null) return false;
+
+        Vector2 origin = transform.position;
+        Vector2 target = playerTransform.position;
+        Vector2 toPlayer = target - origin;
+
+        // Check 1: Distance (sqrMagnitude avoids expensive sqrt)
+        if (toPlayer.sqrMagnitude > viewDistance * viewDistance)
+            return false;
+
+        // Check 2: Angle within cone
+        // GetVectorFromAngle uses Vector2.up as 0 deg, so transform.up represents enemy forward
+        float angleToPlayer = Vector2.Angle(transform.up, toPlayer);
+        if (angleToPlayer > fovAngle * 0.5f)
+            return false;
+
+        // Check 3: Single Linecast to verify no walls/obstacles block line-of-sight
+        RaycastHit2D hit = Physics2D.Linecast(origin, target, obstacleMask);
+        return hit.collider == null;
+    }
+
+    // Converts angle to local direction where 0 deg points up
+    static Vector3 GetVectorFromAngle(float angle)
+    {
+        float rad = angle * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Sin(rad), Mathf.Cos(rad), 0f);
+    }
+}
+
+
+// Akira is gonna make this thing not lag our PC's until it blows up
+/*
+using UnityEngine;
+
 public class FieldOfView : MonoBehaviour
 {
     [Header("FOV Settings")]
@@ -110,3 +261,4 @@ public class FieldOfView : MonoBehaviour
         return new Vector3(Mathf.Sin(rad), Mathf.Cos(rad));
     }
 }
+*/
