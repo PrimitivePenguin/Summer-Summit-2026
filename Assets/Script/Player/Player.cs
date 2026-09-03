@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
 
     InputAction fireAction;
     Damageable damageable;
+    private PlayerMovement playerMovement;
     Camera mainCam;
 
     void Awake()
@@ -16,6 +17,8 @@ public class Player : MonoBehaviour
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
         if (aimController == null) aimController = GetComponentInChildren<AimController>();
         bulletSpawn.isAutomaticSpawn = false;
+
+        playerMovement = GetComponent<PlayerMovement>();
 
         damageable = GetComponent<Damageable>();
         damageable.OnDeath += Die;
@@ -36,17 +39,25 @@ public class Player : MonoBehaviour
         Vector2 mousePos = mainCam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
         aimController.AimAt(mousePos, bulletSpawn);
 
+        // no shooting while dashing or during recovery
+        if (playerMovement != null && (playerMovement.isDashing || playerMovement.isInRecovery)){
+            return;
+        }
+
+        HandleShooting();
+    }
+
+    private void HandleShooting(){
+        if (bulletSpawn == null) return;
+
         BulletSpawnData data = bulletSpawn.GetCurrentData();
         if (data.holdFire)
         {
-            // Hold
-            if (fireAction.IsPressed())
-                bulletSpawn.Fire();
-        } else
+            if (fireAction.IsPressed()) bulletSpawn.Fire();
+        }
+        else
         {
-            // Press
-            if (fireAction.WasPressedThisFrame())
-                bulletSpawn.Fire();
+            if (fireAction.WasPressedThisFrame()) bulletSpawn.Fire();
         }
     }
 
