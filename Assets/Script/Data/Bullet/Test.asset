@@ -19,10 +19,10 @@ MonoBehaviour:
   spreadAngle: 30
   minRotation: 90
   maxRotation: 270
-  numBullets: 2
-  isRandom: 1
+  numBullets: 10
+  isRandom: 0
   isParent: 0
-  burstDelay: 0.1
+  burstDelay: 0
   cooldown: 1
   damage: 1
   collisionLayers:

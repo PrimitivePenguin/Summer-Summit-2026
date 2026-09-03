@@ -56,7 +56,7 @@ public class EnemyAI : MonoBehaviour
         else
         {
             // Fully unaware: stop moving or patrol
-            movement.Stop(); // or movement.Patrol();
+            movement.Patrol(); // or movement.Patrol();
             bulletSpawn.isAutomaticSpawn = false;
         }
     }
