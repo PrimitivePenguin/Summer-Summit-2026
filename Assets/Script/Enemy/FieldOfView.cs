@@ -114,7 +114,8 @@ public class FieldOfView : MonoBehaviour
         angleIncrease = fovAngle / rayCount;
         float currentAngle = fovAngle / 2f; // local variable, not field
 
-        Vector3 origin = Vector3.zero; // local space origin — correct
+        Vector3 origin = Vector3.zero; // local space origin
+        Vector3 worldOrigin = transform.position; // world space origin
         Vector3[] vertices = new Vector3[rayCount + 2];
         Vector2[] uv = new Vector2[vertices.Length];
         int[] triangles = new int[rayCount * 3];
@@ -123,7 +124,19 @@ public class FieldOfView : MonoBehaviour
 
         for (int i = 0; i <= rayCount; i++)
         {
-            Vector3 vertex = GetVectorFromAngle(currentAngle) * viewDistance;
+            Vector3 localDir = GetVectorFromAngle(currentAngle) * viewDistance;
+            Vector3 worldDir = transform.TransformDirection(localDir);
+            RaycastHit2D hit = Physics2D.Raycast(worldOrigin, worldDir, viewDistance, LayerMask.GetMask("Collision"));
+
+            Vector3 vertex;
+            if  (hit.collider != null)
+            { // hit -> convert world into local space
+                vertex = transform.InverseTransformPoint(hit.point);
+            }
+            else
+            {  // no hit -> use local
+                vertex = localDir;
+            }
             vertices[i + 1] = vertex;
 
             if (i < rayCount)
