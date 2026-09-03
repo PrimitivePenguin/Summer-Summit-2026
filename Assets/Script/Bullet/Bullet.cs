@@ -49,9 +49,10 @@ public class Bullet : MonoBehaviour
         if (((1 << collision.gameObject.layer) & collisionLayers) == 0)
             return;
 
-        Damageable target = collision.GetComponent<Damageable>();
-        if (target != null)
+        Damageable target = collision.GetComponentInParent<Damageable>();
+        if (target != null){
             target.TakeDamage(damage);
+        }
 
         gameObject.SetActive(false);
     }
