@@ -12282,6 +12282,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b1502767948bb40b16f54c3b2f1420, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimController
+  isTurnRate: 1
+  turnRate: 0
 --- !u!1 &1471422190
 GameObject:
   m_ObjectHideFlags: 0
@@ -13867,6 +13869,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0b1502767948bb40b16f54c3b2f1420, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimController
+  isTurnRate: 1
+  turnRate: 0
 --- !u!1 &2031375768
 GameObject:
   m_ObjectHideFlags: 0
@@ -14030,6 +14034,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0a67c571086cac540969a5f4c187eb3b, type: 3}
+--- !u!1001 &3169777805683895039
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.77
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.39
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3205557576083622275, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4637364317610618295, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
+      propertyPath: m_Name
+      value: Breakable_House
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: fd6e745cba3474048bd30aa181ca8818, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -14044,3 +14105,4 @@ SceneRoots:
   - {fileID: 876926225}
   - {fileID: 969901966}
   - {fileID: 2691594131866223928}
+  - {fileID: 3169777805683895039}
