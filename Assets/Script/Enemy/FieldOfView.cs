@@ -58,7 +58,7 @@ public class FieldOfView : MonoBehaviour
 
     void DrawFOV()
     {
-        Debug.Log($"FOV parent: {transform.parent?.name}, FOV world pos: {transform.position}, FOV local pos: {transform.localPosition}");
+        //Debug.Log($"FOV parent: {transform.parent?.name}, FOV world pos: {transform.position}, FOV local pos: {transform.localPosition}");
         float angleIncrease = fovAngle / rayCount;
         float currentAngle = fovAngle / 2f;     // start at left edge of cone
 

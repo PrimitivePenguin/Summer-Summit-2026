@@ -89,7 +89,7 @@ public class MenuController : MonoBehaviour
         isGameOver = true;
 
         // Close pause menu if it was somehow open, hide pause button
-        if (menuCanvas != null) menuCanvas.SetActive(true);
+        if (menuCanvas != null) menuCanvas.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(false);
 
         // Show Game Over UI and freeze time
