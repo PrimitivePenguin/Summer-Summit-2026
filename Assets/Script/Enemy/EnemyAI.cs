@@ -23,7 +23,7 @@ public class EnemyAI : MonoBehaviour
     {
         if (playerTransform != null)
         {
-            aimController.AimAt(playerTransform.position, bulletSpawn);
+            aimController.AimAt(playerTransform.position);
         }
     }
 }

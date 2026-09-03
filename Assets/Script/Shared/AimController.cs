@@ -10,6 +10,9 @@ public class AimController : MonoBehaviour
     public bool isTurnRate = true;
     public float turnRate; // degrees per second
     private float currentAngle;
+    // cached AimAt to not call it every frame
+    FieldOfView fov;
+    BulletSpawn bulletSpawn;
     public float GetFacingAngle() => currentAngle;
 
     // called by EnemyController.cs with target position, requires EnemyData -> implement later
@@ -22,6 +25,10 @@ public class AimController : MonoBehaviour
     {
         currentAngle = transform.eulerAngles.z;
         turnRate = isTurnRate ? turnRate : Mathf.Infinity; // if turnRate is 0, set to infinity
+
+        // cache child
+        fov = GetComponentInChildren<FieldOfView>();
+        bulletSpawn = GetComponentInChildren<BulletSpawn>();
     }
 
 
@@ -34,7 +41,7 @@ public class AimController : MonoBehaviour
     }
 
     // Set rotation cone from targetPos in center of the cone, with angle from bulletSpawnData
-    public void AimAt(Vector2 targetPos, BulletSpawn bulletSpawn)
+    public void AimAt(Vector2 targetPos)
     {
         float targetAngle = GetAngleTo(targetPos);
         // change current angle by time * tunrate based on current + target angle
@@ -51,7 +58,6 @@ public class AimController : MonoBehaviour
         transform.rotation = Quaternion.Euler(0, 0, currentAngle);
 
         if (bulletSpawn != null){
-            // Debug.Log($"[AimController] Target: {targetPos}, Current Position: {(Vector2)transform.position}, angle: {targetAngle}");
             float halfAngle = bulletSpawn.GetCurrentData().spreadAngle / 2f;
             bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
         }

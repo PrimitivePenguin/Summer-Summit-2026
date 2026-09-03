@@ -1,16 +1,11 @@
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 
 public class FieldOfView : MonoBehaviour
 {
+    [Header("FOV Settings")]
     public float fovAngle = 90f;
-    int rayCount = 20; // more = smoother arc
-    float viewDistance = 5f;
-
-    // moved to Start — can't reference instance fields at declaration
-    float angleIncrease;
-    float angle;
+    public float viewDistance = 5f;
+    public int rayCount = 20;
 
     [Header("FOV Visual")]
     public bool showFOV;
@@ -22,18 +17,10 @@ public class FieldOfView : MonoBehaviour
 
     void Start()
     {
-        // calculate here instead of at field declaration
-        angleIncrease = fovAngle / rayCount;
-        angle = fovAngle / 2f; // start at left edge of cone so it's centered
-
-        mesh = new Mesh
-        {
-            name = "FOV Mesh"
-        };
+        mesh = new Mesh { name = "FOV Mesh" };
         GetComponent<MeshFilter>().mesh = mesh;
         meshRenderer = GetComponent<MeshRenderer>();
 
-        // Material in code
         mat = new Material(Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default"));
         mat.SetFloat("_Surface", 1f);
         mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
@@ -41,12 +28,10 @@ public class FieldOfView : MonoBehaviour
         mat.SetInt("_ZWrite", 0);
         mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         mat.renderQueue = 3000;
-
-        // show or hide FOV based on bool
-        mat.color = showFOV ? fovColor : new Color(0, 0, 0, 0f);
+        mat.color = fovColor;
         meshRenderer.material = mat;
 
-        // sorting and order layer based on parent
+        // sorting layer from parent SpriteRenderer
         SpriteRenderer parentSprite = transform.parent?.GetComponent<SpriteRenderer>();
         if (parentSprite != null)
         {
@@ -55,52 +40,9 @@ public class FieldOfView : MonoBehaviour
         }
         else
         {
-            // fallback if parent has no SpriteRenderer
             meshRenderer.sortingLayerName = "Default";
             meshRenderer.sortingOrder = 1;
         }
-
-        // +1 for the origin, +1 for the last vertex to close the mesh
-        Vector3 origin = Vector3.zero;
-        Vector3[] vertices = new Vector3[rayCount + 1 + 1];
-        Vector2[] uv = new Vector2[vertices.Length];
-        int[] triangles = new int[rayCount * 3];
-
-        vertices[0] = origin;
-
-        for (int i = 0; i <= rayCount; i++)
-        {
-            // convert angle to direction vector scaled by view distance
-            // raycasting not working
-            Vector3 vertex = origin + GetVectorFromAngle(angle) * viewDistance;
-            RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance, LayerMask.GetMask("Collision"));
-            if (raycastHit2D.collider == null)
-            {
-                // No hit
-                vertex = origin + GetVectorFromAngle(angle) * viewDistance;
-            } else
-            {
-                // Hit
-                vertex = raycastHit2D.point;
-            }
-
-            vertices[i + 1] = vertex;
-
-            if (i < rayCount)
-            {
-                triangles[i * 3] = 0;
-                triangles[i * 3 + 1] = i + 1;
-                triangles[i * 3 + 2] = i + 2;
-            }
-
-            // step angle across the FOV range
-            angle -= angleIncrease;
-        }
-
-        mesh.vertices = vertices;
-        mesh.uv = uv;
-        mesh.triangles = triangles;
-        mesh.RecalculateNormals();
     }
 
     void Update()
@@ -111,33 +53,32 @@ public class FieldOfView : MonoBehaviour
 
     void DrawFOV()
     {
-        angleIncrease = fovAngle / rayCount;
-        float currentAngle = fovAngle / 2f; // local variable, not field
+        float angleIncrease = fovAngle / rayCount;
+        float currentAngle = fovAngle / 2f;     // start at left edge of cone
 
-        Vector3 origin = Vector3.zero; // local space origin
-        Vector3 worldOrigin = transform.position; // world space origin
+        Vector3 worldOrigin = transform.position; // world space for raycast
         Vector3[] vertices = new Vector3[rayCount + 2];
         Vector2[] uv = new Vector2[vertices.Length];
         int[] triangles = new int[rayCount * 3];
 
-        vertices[0] = origin;
+        vertices[0] = Vector3.zero; // local origin
 
         for (int i = 0; i <= rayCount; i++)
         {
-            Vector3 localDir = GetVectorFromAngle(currentAngle) * viewDistance;
-            Vector3 worldDir = transform.TransformDirection(localDir);
-            RaycastHit2D hit = Physics2D.Raycast(worldOrigin, worldDir, viewDistance, LayerMask.GetMask("Collision"));
+            Vector3 localDir = GetVectorFromAngle(currentAngle);
 
-            Vector3 vertex;
-            if  (hit.collider != null)
-            { // hit -> convert world into local space
-                vertex = transform.InverseTransformPoint(hit.point);
-            }
-            else
-            {  // no hit -> use local
-                vertex = localDir;
-            }
-            vertices[i + 1] = vertex;
+            // world space direction — accounts for parent rotation from AimController
+            Vector3 worldDir = transform.TransformDirection(localDir);
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                worldOrigin, worldDir, viewDistance,
+                LayerMask.GetMask("Collision")
+            );
+
+            // hit → shorten ray to wall; no hit → full distance
+            vertices[i + 1] = hit.collider != null
+                ? transform.InverseTransformPoint(hit.point)  // world → local
+                : localDir * viewDistance;                     // already local
 
             if (i < rayCount)
             {
@@ -156,9 +97,10 @@ public class FieldOfView : MonoBehaviour
         mesh.RecalculateNormals();
     }
 
-    public static Vector3 GetVectorFromAngle(float angle)
+    // local-space direction from angle — Sin/Cos gives Vector2.up as 0 degrees
+    static Vector3 GetVectorFromAngle(float angle)
     {
-        float angleRad = angle * (Mathf.PI / 180f);
-        return new Vector3(Mathf.Sin(angleRad), Mathf.Cos(angleRad));
+        float rad = angle * Mathf.Deg2Rad;
+        return new Vector3(Mathf.Sin(rad), Mathf.Cos(rad));
     }
 }

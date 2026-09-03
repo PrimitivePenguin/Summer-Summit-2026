@@ -37,7 +37,7 @@ public class Player : MonoBehaviour
     void Update()
     {
         Vector2 mousePos = mainCam.ScreenToWorldPoint(Mouse.current.position.ReadValue());
-        aimController.AimAt(mousePos, bulletSpawn);
+        aimController.AimAt(mousePos);
 
         // no shooting while dashing or during recovery
         if (playerMovement != null && (playerMovement.isDashing || playerMovement.isInRecovery)){
