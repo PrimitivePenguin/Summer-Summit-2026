@@ -71,6 +71,7 @@ public class FieldOfView : MonoBehaviour
         for (int i = 0; i <= rayCount; i++)
         {
             // convert angle to direction vector scaled by view distance
+            // raycasting not working
             Vector3 vertex = origin + GetVectorFromAngle(angle) * viewDistance;
             RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance, LayerMask.GetMask("Collision"));
             if (raycastHit2D.collider == null)
