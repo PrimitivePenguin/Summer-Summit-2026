@@ -72,6 +72,16 @@ public class FieldOfView : MonoBehaviour
         {
             // convert angle to direction vector scaled by view distance
             Vector3 vertex = origin + GetVectorFromAngle(angle) * viewDistance;
+            RaycastHit2D raycastHit2D = Physics2D.Raycast(origin, GetVectorFromAngle(angle), viewDistance, LayerMask.GetMask("Collision"));
+            if (raycastHit2D.collider == null)
+            {
+                // No hit
+                vertex = origin + GetVectorFromAngle(angle) * viewDistance;
+            } else
+            {
+                // Hit
+                vertex = raycastHit2D.point;
+            }
 
             vertices[i + 1] = vertex;
 
@@ -94,8 +104,42 @@ public class FieldOfView : MonoBehaviour
 
     void Update()
     {
-        // toggle visibility based on showFOV
         meshRenderer.enabled = showFOV;
+        if (showFOV) DrawFOV();
+    }
+
+    void DrawFOV()
+    {
+        angleIncrease = fovAngle / rayCount;
+        float currentAngle = fovAngle / 2f; // local variable, not field
+
+        Vector3 origin = Vector3.zero; // local space origin — correct
+        Vector3[] vertices = new Vector3[rayCount + 2];
+        Vector2[] uv = new Vector2[vertices.Length];
+        int[] triangles = new int[rayCount * 3];
+
+        vertices[0] = origin;
+
+        for (int i = 0; i <= rayCount; i++)
+        {
+            Vector3 vertex = GetVectorFromAngle(currentAngle) * viewDistance;
+            vertices[i + 1] = vertex;
+
+            if (i < rayCount)
+            {
+                triangles[i * 3] = 0;
+                triangles[i * 3 + 1] = i + 1;
+                triangles[i * 3 + 2] = i + 2;
+            }
+
+            currentAngle -= angleIncrease;
+        }
+
+        mesh.Clear();
+        mesh.vertices = vertices;
+        mesh.uv = uv;
+        mesh.triangles = triangles;
+        mesh.RecalculateNormals();
     }
 
     public static Vector3 GetVectorFromAngle(float angle)

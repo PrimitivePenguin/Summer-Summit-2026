@@ -51,6 +51,8 @@ public class Bullet : MonoBehaviour
 
         Damageable target = collision.GetComponentInParent<Damageable>();
         if (target != null){
+        Damageable target = collision.GetComponent<Damageable>();
+        if (target != null)
             target.TakeDamage(damage);
         }
 
