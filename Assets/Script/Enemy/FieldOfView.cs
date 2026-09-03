@@ -17,6 +17,11 @@ public class FieldOfView : MonoBehaviour
 
     void Start()
     {
+        // Reset local position
+        transform.localPosition = Vector3.zero;
+        transform.localRotation = Quaternion.identity;
+        transform.localScale = Vector3.one;
+
         mesh = new Mesh { name = "FOV Mesh" };
         GetComponent<MeshFilter>().mesh = mesh;
         meshRenderer = GetComponent<MeshRenderer>();
@@ -53,6 +58,7 @@ public class FieldOfView : MonoBehaviour
 
     void DrawFOV()
     {
+        Debug.Log($"FOV parent: {transform.parent?.name}, FOV world pos: {transform.position}, FOV local pos: {transform.localPosition}");
         float angleIncrease = fovAngle / rayCount;
         float currentAngle = fovAngle / 2f;     // start at left edge of cone
 
@@ -68,7 +74,7 @@ public class FieldOfView : MonoBehaviour
             Vector3 localDir = GetVectorFromAngle(currentAngle);
 
             // world space direction — accounts for parent rotation from AimController
-            Vector3 worldDir = transform.TransformDirection(localDir);
+            Vector3 worldDir = transform.TransformDirection(localDir).normalized;
 
             RaycastHit2D hit = Physics2D.Raycast(
                 worldOrigin, worldDir, viewDistance,
