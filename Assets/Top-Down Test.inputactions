@@ -28,7 +28,7 @@
                     "name": "Fire",
                     "type": "Button",
                     "id": "737a625a-24f9-4fd9-bd52-53c4674862d0",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -268,6 +268,17 @@
                     "name": "",
                     "id": "eae2a8db-c2b4-4978-81ce-d4679083fb46",
                     "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "94cdecf9-b220-4282-b7c9-c01c3ff42337",
+                    "path": "<Keyboard>/shift",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
