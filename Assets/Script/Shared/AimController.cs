@@ -39,12 +39,22 @@ public class AimController : MonoBehaviour
         float targetAngle = GetAngleTo(targetPos);
         // change current angle by time * tunrate based on current + target angle
         // rotate object to face target position
-        currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnRate * Time.deltaTime);
-        transform.rotation = Quaternion.Euler(0, 0, currentAngle); 
+        if (!isTurnRate){
+            currentAngle = targetAngle;
+        }
+        else if (Time.deltaTime > 0f){
+            currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnRate * Time.deltaTime);
+        }
+        if (float.IsNaN(currentAngle)){
+            currentAngle = targetAngle;
+        }
+        transform.rotation = Quaternion.Euler(0, 0, currentAngle);
 
-        // Debug.Log($"[AimController] Target: {targetPos}, Current Position: {(Vector2)transform.position}, angle: {targetAngle}");
-        float halfAngle = bulletSpawn.GetCurrentData().spreadAngle / 2f;
-        bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
+        if (bulletSpawn != null){
+            // Debug.Log($"[AimController] Target: {targetPos}, Current Position: {(Vector2)transform.position}, angle: {targetAngle}");
+            float halfAngle = bulletSpawn.GetCurrentData().spreadAngle / 2f;
+            bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
+        }
     }
     // aim to snap
     public void SnapTo(float angle)

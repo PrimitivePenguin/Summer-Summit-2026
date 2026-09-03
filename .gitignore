@@ -127,3 +127,6 @@ Thumbs.db.meta
 
 # URP pipeline assets are intentionally tracked (remove this if you don't want that)
 # /[Aa]ssets/Settings/
+
+# My goddamn folder
+WindowsBuild/
