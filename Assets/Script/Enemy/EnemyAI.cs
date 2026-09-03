@@ -6,6 +6,7 @@ public class EnemyAI : MonoBehaviour
     [SerializeField] BulletSpawn bulletSpawn;
     [SerializeField] AimController aimController;
     EnemyVision vision;
+    private EnemyMovement movement;
     Transform playerTransform;
 
     void Start()
@@ -13,6 +14,8 @@ public class EnemyAI : MonoBehaviour
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
         if (aimController == null) aimController = GetComponentInChildren<AimController>();
         vision = GetComponent<EnemyVision>();
+        movement = GetComponent<EnemyMovement>();
+
         if (vision == null)
         {
             Debug.LogError($"[EnemyAI] EnemyVision not found on {gameObject.name} — is it on the root object?");
@@ -30,23 +33,30 @@ public class EnemyAI : MonoBehaviour
     {
         if (playerTransform == null) return;
 
-        vision.Tick();   // refresh canSeePlayer / awareness / lastKnownPosition first
+        vision.Tick();
 
         if (vision.canSeePlayer)
         {
-            // clear shot: track the live player and let the turret auto-fire
+            // 1. Aim the weapon
             aimController.AimAt(playerTransform.position);
+
+            // 2. Command movement toward the player's current position
+            movement.MoveToward(playerTransform.position);
+
             bulletSpawn.isAutomaticSpawn = true;
         }
         else if (vision.awareness > 0f)
         {
-            // lost the cone but still aware: pivot toward the last known fix, hold fire
+            // Player broke line of sight: move toward where they were last seen
             aimController.AimAt(vision.lastKnownPosition);
+            movement.MoveToward(vision.lastKnownPosition);
+
             bulletSpawn.isAutomaticSpawn = false;
         }
         else
         {
-            // fully unaware: idle
+            // Fully unaware: stop moving or patrol
+            movement.Stop(); // or movement.Patrol();
             bulletSpawn.isAutomaticSpawn = false;
         }
     }

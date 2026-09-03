@@ -3459,7 +3459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimController
   isTurnRate: 1
-  turnRate: 18
+  turnRate: 180
 --- !u!114 &969901970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,7 +3476,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   viewDistance: 8
-  fovAngle: 60
+  fovAngle: 90
   senseDistance: 12
   loadDistance: 15
   awarenessDecayRate: 0.5
@@ -3511,7 +3511,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1
+  m_Mass: 1000
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
