@@ -3459,7 +3459,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AimController
   isTurnRate: 1
-  turnRate: 180
+  turnRate: 18
 --- !u!114 &969901970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,7 +3476,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   viewDistance: 8
-  fovAngle: 90
+  fovAngle: 60
   senseDistance: 12
   loadDistance: 15
   awarenessDecayRate: 0.5
@@ -13155,8 +13155,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
   fovAngle: 90
   viewDistance: 5
-  rayCount: 20
-  showFOV: 1
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  showFOV: 0
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
 --- !u!4 &1618902030
 Transform:
