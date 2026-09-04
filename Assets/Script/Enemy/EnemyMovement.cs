@@ -18,6 +18,25 @@ public class EnemyMovement : MonoBehaviour
     [Header("Patrol")]
     [SerializeField] private Transform[] patrolPoints;
 
+    [Header("Search Settings")]
+    [SerializeField] private AimController aimController;
+    [SerializeField] private float searchSweepAngle = 50f;
+    [SerializeField] private float searchSweepSpeed = 2f; // oscillation speed
+
+    private float searchBaseAngle;
+    private bool isSearching;
+    private float searchTimer;
+
+    public void StartSearching(){
+        if (aimController == null) aimController = GetComponent<AimController>();
+        if (aimController == null) aimController = GetComponentInChildren<AimController>();
+
+        searchBaseAngle = aimController != null ? aimController.GetFacingAngle() : transform.eulerAngles.z;
+        searchTimer = 0f;
+        isSearching = true;
+        Stop();
+    }
+
     [Header("Animation (optional)")]
     [SerializeField] private Animator animator;         // leave null if unused
 
@@ -76,6 +95,30 @@ public class EnemyMovement : MonoBehaviour
         if (IsInRange(target, arriveRadius))
             patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
     }
+
+    // Search
+    public void Search()
+    {
+        // 1. Ensure body does not drift
+        Stop();
+
+        if (aimController == null) return;
+
+        // 2. Advance oscillation timer
+        searchTimer += Time.deltaTime * searchSweepSpeed;
+
+        // 3. Smooth ping-pong sweep: baseAngle +/- sweepAngle
+        float offset = Mathf.Sin(searchTimer) * searchSweepAngle;
+        float targetAngle = searchBaseAngle + offset;
+
+        // Snap or steer to the sweep angle
+        aimController.SnapTo(targetAngle);
+    }
+
+    public void StopSearching(){
+        isSearching = false;
+    }
+
     // Stop moving (zero velocity)
     public void Stop() => SetDesired(Vector2.zero);
 

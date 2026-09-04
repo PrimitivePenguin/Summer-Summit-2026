@@ -102,7 +102,7 @@ public class EnemyController : MonoBehaviour
                 movement.MoveToward(lastSeen);
             }
             else{
-                movement.Patrol();
+                movement.Search();
             }
         }
         else
@@ -123,7 +123,7 @@ public class EnemyController : MonoBehaviour
                 // Sprints into close range; pauses to blast
                 if (distanceToPlayer <= attackRange)
                 {
-                    movement.Patrol();
+                    movement.Search();
                     bulletSpawn.isAutomaticSpawn = true;
                 }
                 else
@@ -143,7 +143,7 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    movement.Patrol();
+                    movement.Search();
                 }
 
                 // Fire only if aimed roughly toward target to avoid spraying walls
@@ -193,13 +193,13 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    movement.Patrol();
+                    movement.Search();
                 }
                 break;
 
             case EnemyArchetype.Chaser:
             case EnemyArchetype.Skirmisher:
-                movement.Patrol();
+                movement.Search();
                 break;
         }
     }
