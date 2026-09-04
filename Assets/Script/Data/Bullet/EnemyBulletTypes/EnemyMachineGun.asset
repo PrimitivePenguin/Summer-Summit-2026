@@ -23,7 +23,7 @@ MonoBehaviour:
   isRandom: 1
   isParent: 0
   burstDelay: 0.05
-  cooldown: 1
+  cooldown: 0
   damage: 1
   collisionLayers:
     serializedVersion: 2

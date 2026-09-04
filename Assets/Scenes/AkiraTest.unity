@@ -3392,8 +3392,8 @@ GameObject:
   - component: {fileID: 969901968}
   - component: {fileID: 969901969}
   - component: {fileID: 969901970}
-  - component: {fileID: 969901972}
   - component: {fileID: 969901971}
+  - component: {fileID: 969901972}
   - component: {fileID: 969901973}
   m_Layer: 7
   m_Name: Enemy1
@@ -3410,15 +3410,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 969901965}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.86, y: 3.6, z: 0}
+  m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
+  m_LocalPosition: {x: 6.48, y: 8.64, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1618902030}
   - {fileID: 1454126048}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 180, y: 0, z: 0}
 --- !u!114 &969901967
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3444,8 +3444,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fb208489d73ce5408477672cad74570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  archetype: 1
   bulletSpawn: {fileID: 1454126046}
   aimController: {fileID: 0}
+  defenseRadius: 3.5
+  preferredMinDist: 4
+  preferredMaxDist: 7
+  strafeClockwise: 1
+  strafeSwitchInterval: 2.5
+  attackRange: 2.2
 --- !u!114 &969901969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3476,7 +3483,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   viewDistance: 8
-  fovAngle: 90
+  fovAngle: 60
   senseDistance: 12
   loadDistance: 15
   awarenessDecayRate: 0.5
@@ -3511,7 +3518,7 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 1000
+  m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 1
@@ -12825,7 +12832,7 @@ MonoBehaviour:
   spawnDatas:
   - {fileID: 11400000, guid: a904775d8b252bf49913b6b3e9485a6c, type: 2}
   isSeqRandom: 1
-  isAutomaticSpawn: 0
+  isAutomaticSpawn: 1
   bulletLayer: 9
   click:
     m_Name: Click
@@ -12904,7 +12911,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1454126045}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -13153,13 +13160,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740cfaf22406a5045853a679fad245dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
-  fovAngle: 90
-  viewDistance: 5
+  fovAngle: 60
+  viewDistance: 8
   rayCount: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
-  showFOV: 1
+  showFOV: 0
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
 --- !u!4 &1618902030
 Transform:

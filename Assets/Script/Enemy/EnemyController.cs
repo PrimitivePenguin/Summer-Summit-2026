@@ -1,13 +1,37 @@
 using UnityEngine;
 
+public enum EnemyArchetype{
+    Chaser,
+    Defender,
+    Skirmisher
+}
+
+
 public class EnemyController : MonoBehaviour
 {
-    // get child components
-    [SerializeField] BulletSpawn bulletSpawn;
-    [SerializeField] AimController aimController;
-    EnemyVision vision;
+    [Header("Archetype")]
+    [SerializeField] private EnemyArchetype archetype = EnemyArchetype.Skirmisher;
+
+    [Header("Components")]
+    [SerializeField] private BulletSpawn bulletSpawn;
+    [SerializeField] private AimController aimController;
+    private EnemyVision vision;
     private EnemyMovement movement;
-    Transform playerTransform;
+    private Transform playerTransform;
+
+    [Header("DefenderSettings")]
+    [SerializeField] private float defenseRadius = 3.5f;
+    private Vector2 defenseAnchor;
+
+    [Header("Skirmisher Settings")]
+    [SerializeField] private float preferredMinDist = 4.0f; // retreat if player is too close
+    [SerializeField] private float preferredMaxDist = 7.0f; // advance if player is too far
+    [SerializeField] private bool strafeClockwise = true;
+    [SerializeField] private float strafeSwitchInterval = 2.5f;
+    private float strafeTimer;
+
+    [Header("Chaser Settings")]
+    [SerializeField] private float attackRange = 2.2f; // Point Blank Range to blast you
 
     void Start()
     {
@@ -21,7 +45,8 @@ public class EnemyController : MonoBehaviour
             Debug.LogError($"[EnemyAI] EnemyVision not found on {gameObject.name} — is it on the root object?");
             return; // stops Start here so Initialize doesn't throw on top of it
         }
-        bulletSpawn.isAutomaticSpawn = true;
+
+        defenseAnchor = transform.position;
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) playerTransform = player.transform;
@@ -31,39 +56,134 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
-        
         if (playerTransform == null) return;
-        // Current:
-        // 1. Update detection (called every frame)
-        // 2. Check whether player is in cone + los, recently seen, last spoted, or fully unaware
-        // 3. Rotate to face a point
-        // 4. Chase a target or patrol
-        // 5. Fire bullets via toggling it on and off
+
         vision.Tick();
 
         if (vision.canSeePlayer)
         {
-            // 1. Aim the weapon
-            aimController.AimAt(playerTransform.position);
+            Vector2 targetPos = playerTransform.position;
+            aimController.AimAt(targetPos);
 
-            // 2. Command movement toward the player's current position
-            movement.MoveToward(playerTransform.position);
-
-            bulletSpawn.isAutomaticSpawn = true;
+            // Execute archetype-specific positioning & firing logic
+            ExecuteArchetypeMovement(targetPos, isDirectSight: true);
         }
         else if (vision.awareness > 0f)
         {
-            // Player broke line of sight: move toward where they were last seen
-            aimController.AimAt(vision.lastKnownPosition);
-            movement.MoveToward(vision.lastKnownPosition);
-
+            // Lost direct line-of-sight: aim & move toward last known location
+            Vector2 lastSeen = vision.lastKnownPosition;
+            aimController.AimAt(lastSeen);
             bulletSpawn.isAutomaticSpawn = false;
+
+            // Move to investigate
+            movement.MoveToward(lastSeen);
         }
         else
         {
-            // Fully unaware: stop moving or patrol
-            movement.Patrol(); // or movement.Patrol();
+            // Unaware state
             bulletSpawn.isAutomaticSpawn = false;
+            HandleUnawareState();
+        }
+    }
+
+    private void ExecuteArchetypeMovement(Vector2 targetPos, bool isDirectSight)
+    {
+        float distanceToPlayer = Vector2.Distance(transform.position, targetPos);
+
+        switch (archetype)
+        {
+            case EnemyArchetype.Chaser:
+                // Sprints into close range; pauses to blast
+                if (distanceToPlayer <= attackRange)
+                {
+                    movement.Stop();
+                    bulletSpawn.isAutomaticSpawn = true;
+                }
+                else
+                {
+                    movement.MoveToward(targetPos);
+                    bulletSpawn.isAutomaticSpawn = false; // Hold fire until within blast range
+                }
+                break;
+
+            case EnemyArchetype.Defender:
+                float distFromAnchor = Vector2.Distance(transform.position, defenseAnchor);
+
+                // Pull back if lured too far away from defense post
+                if (distFromAnchor > defenseRadius)
+                {
+                    movement.MoveToward(defenseAnchor);
+                }
+                else
+                {
+                    movement.Stop();
+                }
+
+                // Fire only if aimed roughly toward target to avoid spraying walls
+                bulletSpawn.isAutomaticSpawn = aimController.IsAimedAt(targetPos, 15f);
+                break;
+
+            case EnemyArchetype.Skirmisher:
+                // Clockwise/counter-clockwise strafe oscillation
+                strafeTimer -= Time.deltaTime;
+                if (strafeTimer <= 0f)
+                {
+                    strafeClockwise = !strafeClockwise;
+                    strafeTimer = strafeSwitchInterval;
+                }
+
+                // Zone the player
+                if (distanceToPlayer < preferredMinDist)
+                {
+                    // Back up
+                    movement.MoveAwayFrom(targetPos);
+                }
+                else if (distanceToPlayer > preferredMaxDist)
+                {
+                    // Close the gap
+                    movement.MoveToward(targetPos);
+                }
+                else
+                {
+                    // Sweet spot: circle-strafe
+                    movement.Strafe(targetPos, strafeClockwise);
+                }
+
+                bulletSpawn.isAutomaticSpawn = true;
+                break;
+        }
+    }
+
+    private void HandleUnawareState()
+    {
+        switch (archetype)
+        {
+            case EnemyArchetype.Defender:
+                // Return to anchor if displaced
+                if (Vector2.Distance(transform.position, defenseAnchor) > 0.5f)
+                {
+                    movement.MoveToward(defenseAnchor);
+                }
+                else
+                {
+                    movement.Stop();
+                }
+                break;
+
+            case EnemyArchetype.Chaser:
+            case EnemyArchetype.Skirmisher:
+                movement.Patrol();
+                break;
+        }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (archetype == EnemyArchetype.Defender)
+        {
+            Gizmos.color = Color.cyan;
+            Vector3 center = Application.isPlaying ? (Vector3)defenseAnchor : transform.position;
+            Gizmos.DrawWireSphere(center, defenseRadius);
         }
     }
 }
