@@ -1,13 +1,11 @@
 using UnityEngine;
 
-/// <summary>
-/// Rigidbody2D-based movement for enemies. Commands (MoveToward, Strafe, etc.)
-/// set a desired velocity; FixedUpdate applies it so collisions resolve properly.
-/// Decides nothing itself — the caller (EnemyController / TacticalBrain) chooses.
-/// </summary>
+// Phase 1. Update - Sets direction enemy wants to go to 
+// Phase 2. FixedUpdate - Applies that direction to the Rigidbody2D
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyMovement : MonoBehaviour
 {
+    // Variables
     [Header("Speeds")]
     [SerializeField] private float moveSpeed = 3f;      // chase speed
     [SerializeField] private float patrolSpeed = 1.5f;  // patrol speed
@@ -35,7 +33,6 @@ public class EnemyMovement : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
     }
 
-    // ── Future EnemyData integration (Section 5 migration path) ──
     public void Initialize(float moveSpeed, float patrolSpeed, float fleeSpeed)
     {
         this.moveSpeed = moveSpeed;
@@ -43,20 +40,19 @@ public class EnemyMovement : MonoBehaviour
         this.fleeSpeed = fleeSpeed;
     }
 
-    // ────────────── COMMANDS (called from Update by controller/brain) ──────────────
-    // These no longer touch rb directly — they record intent for FixedUpdate.
+    // COMMANDS (called from Update by enemyController)
 
-    /// <summary>Move toward a world position at chase speed.</summary>
+    /// Move towards world position at move speed
     public void MoveToward(Vector2 target) => SetDesiredToward(target, moveSpeed);
 
-    /// <summary>Move directly away from a world position at flee speed.</summary>
+    /// Move away from world position at flee speed
     public void MoveAwayFrom(Vector2 threat)
     {
         Vector2 dir = ((Vector2)transform.position - threat).normalized;
         SetDesired(dir * fleeSpeed);
     }
 
-    /// <summary>Circle-strafe around a target (perpendicular to the self→target line).</summary>
+    // Move perpendicular to a target (strafe -> circle around target)
     public void Strafe(Vector2 target, bool clockwise = true)
     {
         Vector2 toTarget = ((Vector2)transform.position - target).normalized;
@@ -66,9 +62,10 @@ public class EnemyMovement : MonoBehaviour
         SetDesired(perp * moveSpeed);
     }
 
-    /// <summary>Move in an arbitrary direction at a given speed (generic command).</summary>
+    // Generic command to move in a direction at a given speed (normalized direction)
     public void Move(Vector2 direction, float speed) => SetDesired(direction.normalized * speed);
 
+    // Patrol through a list of points in order, looping back to the start
     public void Patrol()
     {
         if (patrolPoints == null || patrolPoints.Length == 0) { Stop(); return; }
@@ -79,23 +76,26 @@ public class EnemyMovement : MonoBehaviour
         if (IsInRange(target, arriveRadius))
             patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
     }
-
+    // Stop moving (zero velocity)
     public void Stop() => SetDesired(Vector2.zero);
 
+    // Check if a target is within a certain range of enemy
     public bool IsInRange(Vector2 target, float range)
         => Vector2.Distance(transform.position, target) < range;
 
-    // ────────────── PHYSICS (actual movement + collision) ──────────────
 
+
+    // PHYSICS
     private void FixedUpdate()
     {
         // If no command was issued this step, treat it as "stop" so the enemy
         // doesn't coast forever on its last velocity.
         Vector2 target = commandedThisFrame ? desiredVelocity : Vector2.zero;
 
+        // If acceleration != 0, ramp up velocity toward target
         if (acceleration <= 0f)
             rb.linearVelocity = target;                 // instant
-        else
+        else 
             rb.linearVelocity = Vector2.MoveTowards(
                 rb.linearVelocity, target, acceleration * Time.fixedDeltaTime);
 
@@ -103,7 +103,7 @@ public class EnemyMovement : MonoBehaviour
         commandedThisFrame = false;                     // reset for next step
     }
 
-    // ────────────── internal helpers ──────────────
+    // INTERNAL FUNCTIONS
 
     private void SetDesiredToward(Vector2 target, float speed)
     {
