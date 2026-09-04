@@ -20,4 +20,5 @@ public class BulletSpawnData : ScriptableObject
     public float cooldown;
     public int damage;
     public LayerMask collisionLayers;
+    
 }

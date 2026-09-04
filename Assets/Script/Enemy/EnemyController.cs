@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class EnemyAI : MonoBehaviour
+public class EnemyController : MonoBehaviour
 {
     // get child components
     [SerializeField] BulletSpawn bulletSpawn;
