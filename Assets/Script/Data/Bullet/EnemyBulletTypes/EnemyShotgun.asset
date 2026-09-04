@@ -16,11 +16,11 @@ MonoBehaviour:
   bulletSpeed: 15
   bulletDespawnDist: 30
   holdFire: 1
-  spreadAngle: 60
+  spreadAngle: 30
   minRotation: 90
   maxRotation: 270
   numBullets: 5
-  isRandom: 0
+  isRandom: 1
   isParent: 0
   burstDelay: 0
   cooldown: 1
