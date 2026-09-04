@@ -12903,7 +12903,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawn
   spawnDatas:
-  - {fileID: 11400000, guid: 12d62367e60601243a845bf08c15ac41, type: 2}
+  - {fileID: 11400000, guid: 22e73eabf3e8653458a5900202f849f6, type: 2}
   isSeqRandom: 1
   isAutomaticSpawn: 1
   bulletLayer: 9
