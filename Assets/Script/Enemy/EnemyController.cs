@@ -17,7 +17,11 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private AimController aimController;
     private EnemyVision vision;
     private EnemyMovement movement;
+    private Damageable damageable;
     private Transform playerTransform;
+
+    [Header("Death Settings")]
+    [SerializeField] private GameObject deathEffectPrefab;
 
     [Header("DefenderSettings")]
     [SerializeField] private float defenseRadius = 3.5f;
@@ -32,6 +36,23 @@ public class EnemyController : MonoBehaviour
 
     [Header("Chaser Settings")]
     [SerializeField] private float attackRange = 2.2f; // Point Blank Range to blast you
+
+    void Awake()
+    {
+        damageable = GetComponent<Damageable>();
+        if (damageable != null){
+            damageable.OnDeath += HandleDeath;
+        }
+        else{
+            Debug.LogWarning($"[EnemyController] No Damageable Component found on {gameObject.name}!");
+        }
+    }
+
+    void OnDestroy(){
+        if (damageable != null){
+            damageable.OnDeath -= HandleDeath;
+        }
+    }
 
     void Start()
     {
@@ -175,6 +196,13 @@ public class EnemyController : MonoBehaviour
                 movement.Patrol();
                 break;
         }
+    }
+
+    private void HandleDeath(){
+        if (deathEffectPrefab != null){
+            Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
+        }
+        Destroy(gameObject);
     }
 
     private void OnDrawGizmosSelected()
