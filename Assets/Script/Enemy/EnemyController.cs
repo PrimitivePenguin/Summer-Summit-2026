@@ -31,8 +31,14 @@ public class EnemyController : MonoBehaviour
 
     void Update()
     {
+        
         if (playerTransform == null) return;
-
+        // Current:
+        // 1. Update detection (called every frame)
+        // 2. Check whether player is in cone + los, recently seen, last spoted, or fully unaware
+        // 3. Rotate to face a point
+        // 4. Chase a target or patrol
+        // 5. Fire bullets via toggling it on and off
         vision.Tick();
 
         if (vision.canSeePlayer)

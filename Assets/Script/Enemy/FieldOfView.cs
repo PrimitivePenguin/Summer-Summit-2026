@@ -1,5 +1,6 @@
 using UnityEngine;
 
+// Purely cosmetic, shows where enemy can see player or not 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class FieldOfView : MonoBehaviour
 {

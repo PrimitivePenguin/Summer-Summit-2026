@@ -1,13 +1,18 @@
 using UnityEngine;
+// loadDistance: loads player into memory
+// senseDistance: knows player is nearby
+// viewDist: can see player -> check with cone + LOS
+// Output: canSeePlayer, awareness, lastKnownPosition
 
 public class EnemyVision : MonoBehaviour
-{
-    [Header("Precise Vision — cone + line of sight")]
+{  
+    // Configuration
+    [Header("Cone + LOS")]
     [SerializeField] LayerMask wallLayer;         // layers that block sight (same layer FOV uses)
     [SerializeField] float viewDistance = 8f;     // cone reach — match FieldOfView.viewDistance
     [SerializeField] float fovAngle = 90f;        // cone width — match FieldOfView.fovAngle
 
-    [Header("Proximity Sense — bigger range, distance only")]
+    [Header("Proximity Ranges")]
     [SerializeField] float senseDistance = 12f;   // omnidirectional last-known range (no cone, no LOS)
     [SerializeField] float loadDistance = 15f;    // outermost gate: beyond this, go fully idle
 
@@ -22,7 +27,7 @@ public class EnemyVision : MonoBehaviour
     Transform player;
     AimController aimController;
 
-    // architecture Initialize overload — called from the controller's Start()
+    // Initialize: called from the enemyController's Start()
     public void Initialize(Transform player, AimController aimController)
     {
         this.player = player;
@@ -32,18 +37,16 @@ public class EnemyVision : MonoBehaviour
     // called every frame by the controller (this component never self-Updates)
     public void Tick()
     {
-        canSeePlayer = CheckPlayerVisible();          // precise: cone + LOS
+        // Returns 3 variables every tick
+        canSeePlayer = CheckPlayerVisible();    
 
         if (canSeePlayer)
         {
             awareness = 1f;
-            lastKnownPosition = player.position;       // exact live fix
+            lastKnownPosition = player.position;       
         }
-        else if (IsPlayerInSenseRange())               // <-- your bigger-range simple distance check
+        else if (IsPlayerInSenseRange())             
         {
-            // Player is close enough to "sense" even if not in the cone (footsteps/proximity).
-            // Refresh the last-known fix, but deliberately do NOT set canSeePlayer —
-            // seeing stays cone-only, so Chase/Attack logic can gate on it.
             lastKnownPosition = player.position;
         }
         else
@@ -53,7 +56,7 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
-    // precise: inside the cone AND within viewDistance AND no wall in between
+    // Player inside the cone AND within viewDistance AND no wall in between
     bool CheckPlayerVisible()
     {
         if (player == null || aimController == null) return false;
@@ -74,14 +77,13 @@ public class EnemyVision : MonoBehaviour
         return hit.collider == null;                                  // clear line of sight
     }
 
-    // the bigger-range last-known sensor: pure distance, no cone, no LOS
     public bool IsPlayerInSenseRange()
     {
         if (player == null) return false;
         return Vector2.Distance(transform.position, player.position) < senseDistance;
     }
 
-    // architecture's Idle-vs-active gate (section 8): outermost, distance only
+    // Load player if in range, otherwise unload = fully idle, no awareness, no lastKnownPosition
     public bool IsPlayerInLoadRange()
     {
         if (player == null) return false;
