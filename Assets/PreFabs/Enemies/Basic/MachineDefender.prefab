@@ -47,14 +47,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740cfaf22406a5045853a679fad245dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
-  fovAngle: 60
-  viewDistance: 8
-  rayCount: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
-  showFOV: 0
+  showFOV: 1
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
+  rayCount: 5
 --- !u!23 &1785264976680092767
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -157,7 +155,7 @@ Transform:
   m_GameObject: {fileID: 4059057970428860086}
   serializedVersion: 2
   m_LocalRotation: {x: 1, y: 0, z: 0, w: 0}
-  m_LocalPosition: {x: 0.6722282, y: 6.988044, z: 0}
+  m_LocalPosition: {x: 6.87, y: 8.92, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -193,12 +191,14 @@ MonoBehaviour:
   archetype: 1
   bulletSpawn: {fileID: 7715392713906424799}
   aimController: {fileID: 0}
+  deathEffectPrefab: {fileID: 0}
   defenseRadius: 3.5
   preferredMinDist: 4
   preferredMaxDist: 7
   strafeClockwise: 1
   strafeSwitchInterval: 2.5
   attackRange: 2.2
+  defenderWanderInterval: 3
 --- !u!114 &2025766082312696442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,6 +251,9 @@ MonoBehaviour:
   acceleration: 20
   arriveRadius: 0.3
   patrolPoints: []
+  aimController: {fileID: 0}
+  searchSweepAngle: 50
+  searchSweepSpeed: 2
   animator: {fileID: 0}
 --- !u!50 &1738397814050964276
 Rigidbody2D:
