@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 8829877150779117818}
   - component: {fileID: 3541634969774971442}
   - component: {fileID: 3682421233183637696}
+  - component: {fileID: 2730054171085946958}
   m_Layer: 7
   m_Name: FamasSkirmisher
   m_TagString: Untagged
@@ -68,6 +69,8 @@ MonoBehaviour:
   archetype: 2
   bulletSpawn: {fileID: 2857135532043532110}
   aimController: {fileID: 0}
+  repathInterval: 0.4
+  deathEffectPrefab: {fileID: 0}
   defenseRadius: 3.5
   preferredMinDist: 4
   preferredMaxDist: 7
@@ -126,6 +129,10 @@ MonoBehaviour:
   acceleration: 20
   arriveRadius: 0.3
   patrolPoints: []
+  aimController: {fileID: 0}
+  searchSweepAngle: 50
+  searchSweepSpeed: 2
+  pathfinding: {fileID: 0}
   animator: {fileID: 0}
 --- !u!50 &3541634969774971442
 Rigidbody2D:
@@ -200,6 +207,27 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &2730054171085946958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478187052371301602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
+  ROW: 15
+  COL: 15
+  cellSize: 1
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionRadius: 0.25
+  drawGrid: 1
+  drawPath: 1
 --- !u!1 &4911893219644017941
 GameObject:
   m_ObjectHideFlags: 0
@@ -366,14 +394,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740cfaf22406a5045853a679fad245dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
-  fovAngle: 60
-  viewDistance: 8
-  rayCount: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
-  showFOV: 0
+  showFOV: 1
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
+  rayCount: 5
 --- !u!23 &6534922831535794801
 MeshRenderer:
   m_ObjectHideFlags: 0
