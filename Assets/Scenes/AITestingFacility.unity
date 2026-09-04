@@ -3650,7 +3650,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   collisionRadius: 0.25
-  drawGrid: 1
+  drawGrid: 0
   drawPath: 1
 --- !u!1 &971078190
 GameObject:
@@ -13216,7 +13216,6 @@ GameObject:
   - component: {fileID: 1618902034}
   - component: {fileID: 1618902037}
   - component: {fileID: 1618902036}
-  - component: {fileID: 1618902035}
   m_Layer: 0
   m_Name: FOV
   m_TagString: Untagged
@@ -13327,27 +13326,6 @@ SortingGroup:
   m_SortingOrder: 0
   m_SortAtRoot: 0
   m_Sort3DAs2D: 0
---- !u!114 &1618902035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1618902028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
-  ROW: 15
-  COL: 15
-  cellSize: 1
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  collisionRadius: 0.25
-  drawGrid: 1
-  drawPath: 1
 --- !u!114 &1618902036
 MonoBehaviour:
   m_ObjectHideFlags: 0
