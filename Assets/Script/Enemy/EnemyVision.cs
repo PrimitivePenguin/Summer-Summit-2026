@@ -9,8 +9,8 @@ public class EnemyVision : MonoBehaviour
     // Configuration
     [Header("Cone + LOS")]
     [SerializeField] LayerMask wallLayer;         // layers that block sight (same layer FOV uses)
-    [SerializeField] float viewDistance = 8f;     // cone reach — match FieldOfView.viewDistance
-    [SerializeField] float fovAngle = 90f;        // cone width — match FieldOfView.fovAngle
+    [SerializeField] public float viewDistance = 8f;     // cone reach — match FieldOfView.viewDistance
+    [SerializeField] public float fovAngle = 90f;        // cone width — match FieldOfView.fovAngle
 
     [Header("Proximity Ranges")]
     [SerializeField] float senseDistance = 4f;   // omnidirectional last-known range (no cone, no LOS)
@@ -48,7 +48,7 @@ public class EnemyVision : MonoBehaviour
 
         if (canSeePlayer)
         {
-            Debug.Log("I see you!");
+            // Debug.Log("I see you!");
             awareness = 1f;
             lastKnownPosition = player.position;       
         }
