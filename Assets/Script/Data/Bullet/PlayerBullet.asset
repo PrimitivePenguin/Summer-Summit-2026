@@ -24,7 +24,7 @@ MonoBehaviour:
   isParent: 0
   burstDelay: 0
   cooldown: 1
-  damage: 1
+  damage: 10
   collisionLayers:
     serializedVersion: 2
     m_Bits: 136

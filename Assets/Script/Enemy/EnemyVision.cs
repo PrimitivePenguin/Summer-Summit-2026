@@ -13,7 +13,7 @@ public class EnemyVision : MonoBehaviour
     [SerializeField] float fovAngle = 90f;        // cone width — match FieldOfView.fovAngle
 
     [Header("Proximity Ranges")]
-    [SerializeField] float senseDistance = 12f;   // omnidirectional last-known range (no cone, no LOS)
+    [SerializeField] float senseDistance = 4f;   // omnidirectional last-known range (no cone, no LOS)
     [SerializeField] float loadDistance = 15f;    // outermost gate: beyond this, go fully idle
 
     [Header("Awareness")]
@@ -32,21 +32,29 @@ public class EnemyVision : MonoBehaviour
     {
         this.player = player;
         this.aimController = aimController;
+
+        if (wallLayer == 0){
+            wallLayer = LayerMask.GetMask("Collision");
+        }
     }
 
     // called every frame by the controller (this component never self-Updates)
     public void Tick()
     {
+        if (player == null) return;
+
         // Returns 3 variables every tick
         canSeePlayer = CheckPlayerVisible();    
 
         if (canSeePlayer)
         {
+            Debug.Log("I see you!");
             awareness = 1f;
             lastKnownPosition = player.position;       
         }
         else if (IsPlayerInSenseRange())             
         {
+            awareness = 1f;
             lastKnownPosition = player.position;
         }
         else
@@ -59,28 +67,42 @@ public class EnemyVision : MonoBehaviour
     // Player inside the cone AND within viewDistance AND no wall in between
     bool CheckPlayerVisible()
     {
-        if (player == null || aimController == null) return false;
+        if (player == null) return false;
 
         Vector2 self = transform.position;
-        Vector2 toPlayer = (Vector2)player.position - self;
-        float dist = toPlayer.magnitude;
-        if (dist > viewDistance) return false;                        // too far
+        Vector2 target = player.position;
+        Vector2 toPlayer = target - self;
 
-        // undo AimController's -90 offset to get a standard math-degree facing
-        float facingAngle = aimController.GetFacingAngle() + 90f;
-        float angleToPlayer = Mathf.Atan2(toPlayer.y, toPlayer.x) * Mathf.Rad2Deg;
-        if (Mathf.Abs(Mathf.DeltaAngle(facingAngle, angleToPlayer)) > fovAngle / 2f)
-            return false;                                             // outside the cone
+        // 1. Distance check
+        if (toPlayer.sqrMagnitude > viewDistance * viewDistance) return false;
 
-        // wall between us? (normalized dir + dist gives a clean, length-limited ray)
-        RaycastHit2D hit = Physics2D.Raycast(self, toPlayer.normalized, dist, wallLayer);
-        return hit.collider == null;                                  // clear line of sight
+        // 2. Physical transform forward check (immune to angle/offset mismatches)
+        // Use transform.up if your art faces UP at 0 rot, or transform.right if it faces RIGHT
+        Vector2 facingDir = transform.up; 
+        float angleToPlayer = Vector2.Angle(facingDir, toPlayer);
+
+        if (angleToPlayer > fovAngle * 0.5f)
+            return false; // Outside cone
+
+        // 3. Linecast for walls
+        RaycastHit2D hit = Physics2D.Linecast(self, target, wallLayer);
+        return hit.collider == null;
     }
 
     public bool IsPlayerInSenseRange()
     {
         if (player == null) return false;
-        return Vector2.Distance(transform.position, player.position) < senseDistance;
+
+        Vector2 self = transform.position;
+        Vector2 target = player.position;
+
+        // Proximity distance check
+        if ((target - self).sqrMagnitude > senseDistance * senseDistance)
+            return false;
+
+        // Blocked by walls
+        RaycastHit2D hit = Physics2D.Linecast(self, target, wallLayer);
+        return hit.collider == null;
     }
 
     // Load player if in range, otherwise unload = fully idle, no awareness, no lastKnownPosition

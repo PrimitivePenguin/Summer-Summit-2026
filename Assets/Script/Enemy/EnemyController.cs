@@ -96,8 +96,14 @@ public class EnemyController : MonoBehaviour
             aimController.AimAt(lastSeen);
             bulletSpawn.isAutomaticSpawn = false;
 
-            // Move to investigate
-            movement.MoveToward(lastSeen);
+            // Check if we've reached the last known spot
+            float distToLastSeen = Vector2.Distance(transform.position, lastSeen);
+            if (distToLastSeen > 0.6f){
+                movement.MoveToward(lastSeen);
+            }
+            else{
+                movement.Patrol();
+            }
         }
         else
         {
@@ -117,7 +123,7 @@ public class EnemyController : MonoBehaviour
                 // Sprints into close range; pauses to blast
                 if (distanceToPlayer <= attackRange)
                 {
-                    movement.Stop();
+                    movement.Patrol();
                     bulletSpawn.isAutomaticSpawn = true;
                 }
                 else
@@ -137,7 +143,7 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    movement.Stop();
+                    movement.Patrol();
                 }
 
                 // Fire only if aimed roughly toward target to avoid spraying walls
@@ -187,7 +193,7 @@ public class EnemyController : MonoBehaviour
                 }
                 else
                 {
-                    movement.Stop();
+                    movement.Patrol();
                 }
                 break;
 
