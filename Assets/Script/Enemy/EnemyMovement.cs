@@ -56,20 +56,15 @@ public class EnemyMovement : MonoBehaviour
     private void Start()
     {
         if (pathfinding == null) pathfinding = GetComponent<EnemyPathfinding>();
-
         route = patrolRoute;
 
         if (route != null && route.WaypointCount > 0)
         {
+            patrolIndex = 0;
             currentPatrolTarget = route.SampleWaypoint(patrolIndex);
-            Debug.Log($"[{gameObject.name}] PatrolRoute ready, first target: {currentPatrolTarget}");
+            pathfinding.ComputePath(currentPatrolTarget);
         }
-        else
-        {
-            // Don't return — other Start() logic still needs to run
-            Debug.LogWarning($"[EnemyMovement] No PatrolRoute on {gameObject.name}, patrol disabled.");
-        }
-    }    
+    }
 
 
     public void Initialize(float moveSpeed, float patrolSpeed, float fleeSpeed)
@@ -107,7 +102,6 @@ public class EnemyMovement : MonoBehaviour
     {
         if (pathfinding == null) { SetDesiredToward(target, speed); return; }
 
-        // Recompute A* every couple seconds
         repathTimer -= Time.deltaTime;
         if (repathTimer <= 0f)
         {
@@ -115,8 +109,8 @@ public class EnemyMovement : MonoBehaviour
             repathTimer = repathInterval;
         }
 
-        // GetNextWaypoint returns `target` itself when no path is available
-        Vector2 step = pathfinding.GetNextWaypoint(target);
+        // Replace GetNextWaypoint with GetCurrentSteeringTarget:
+        Vector2 step = pathfinding.GetCurrentSteeringTarget(target);
         SetDesiredToward(step, speed);
     }
 
@@ -173,27 +167,26 @@ public class EnemyMovement : MonoBehaviour
     {
         if (route == null || route.WaypointCount == 0)
         {
-            Debug.LogWarning($"[EnemyMovement] Patrol() called but route is null/empty on {gameObject.name}");
             Stop();
             return;
         }
 
-        // currentPatrolTarget is zero if Start() returned early — catch it here
-        if (currentPatrolTarget == Vector3.zero)
+        // If path is complete and we are within arrival distance of the actual target
+        if (!pathfinding.HasPath && IsInRange(currentPatrolTarget, arriveRadius))
         {
-            Debug.LogWarning($"[EnemyMovement] currentPatrolTarget was zero, resampling on {gameObject.name}");
-            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
-        }
-
-        Debug.Log($"[{gameObject.name}] Patrolling → point {patrolIndex} at {currentPatrolTarget}, distance: {Vector2.Distance(transform.position, currentPatrolTarget):F2}, arriveRadius: {arriveRadius}");
-
-        MoveTowardSmart(currentPatrolTarget, patrolSpeed);
-
-        if (IsInRange(currentPatrolTarget, arriveRadius))
-        {
-            Debug.Log($"[{gameObject.name}] Arrived at point {patrolIndex}, advancing to next");
             patrolIndex = (patrolIndex + 1) % route.WaypointCount;
             currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+            pathfinding.ComputePath(currentPatrolTarget);
+            return;
+        }
+
+        Vector2 nextStep = pathfinding.GetCurrentSteeringTarget(currentPatrolTarget);
+        SetDesiredToward(nextStep, patrolSpeed);
+
+        // Fallback: if path emptied out but not yet within arriveRadius, steer directly to waypoint
+        if (!pathfinding.HasPath && !IsInRange(currentPatrolTarget, arriveRadius))
+        {
+            SetDesiredToward(currentPatrolTarget, patrolSpeed);
         }
     }
 

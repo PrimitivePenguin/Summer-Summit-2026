@@ -12,12 +12,7 @@ public class EnemyPathfinding : MonoBehaviour
     public struct Pair
     {
         public int first, second;
-
-        public Pair(int first, int second)
-        {
-            this.first = first;
-            this.second = second;
-        }
+        public Pair(int first, int second) { this.first = first; this.second = second; }
     }
 
     private class Cell
@@ -26,11 +21,9 @@ public class EnemyPathfinding : MonoBehaviour
         public double f = double.MaxValue, g = double.MaxValue, h = double.MaxValue;
     }
 
-    // Minimal binary min-heap (stands in for System.Collections.Generic.PriorityQueue)
     private class MinHeap<TElement>
     {
         private readonly List<(TElement element, double priority)> heap = new();
-
         public int Count => heap.Count;
 
         public void Enqueue(TElement element, double priority)
@@ -67,17 +60,18 @@ public class EnemyPathfinding : MonoBehaviour
         }
     }
 
-    [Header("Grid")]
-    [SerializeField] private int ROW = 15;
-    [SerializeField] private int COL = 15;
+    [Header("World Grid Settings")]
+    [SerializeField] private int ROW = 40;
+    [SerializeField] private int COL = 40;
     [SerializeField] private float cellSize = 1f;
+    [SerializeField] private Vector2 gridOrigin = Vector2.zero; // World center of your arena
 
     [Header("Collision")]
     [SerializeField] public LayerMask collisionMask;
     [SerializeField] private float collisionRadius = 0.25f;
+    [SerializeField] private float nodeArriveThreshold = 0.35f;
 
     [Header("Debug")]
-    [SerializeField] private bool drawGrid = true;
     [SerializeField] private bool drawPath = true;
 
     private List<Vector2> currentPath = new List<Vector2>();
@@ -92,53 +86,67 @@ public class EnemyPathfinding : MonoBehaviour
 
     private Vector3 GridToWorld(int row, int col)
     {
-        float xOffset = (col - (COL - 1) * 0.5f) * cellSize;
-        float yOffset = ((ROW - 1) * 0.5f - row) * cellSize;
-        return transform.position + new Vector3(xOffset, yOffset, 0f);
+        float x = gridOrigin.x + (col - (COL - 1) * 0.5f) * cellSize;
+        float y = gridOrigin.y + ((ROW - 1) * 0.5f - row) * cellSize;
+        return new Vector3(x, y, 0f);
     }
 
     // World -> Grid coordinate conversion
     // USE: convert enemy pos into grid coordinates for A* search
     private Pair WorldToGrid(Vector3 worldPos)
     {
-        Vector3 local = worldPos - transform.position;
+        Vector3 local = worldPos - (Vector3)gridOrigin;
         int col = Mathf.RoundToInt(local.x / cellSize + (COL - 1) * 0.5f);
         int row = Mathf.RoundToInt((ROW - 1) * 0.5f - local.y / cellSize);
         return new Pair(row, col);
     }
 
-    // Check whether cell is within grid bound via obstacle collider
-    private bool IsValid(int row, int col)
-    {
-        return row >= 0 && row < ROW && col >= 0 && col < COL;
-    }
+    private bool IsValid(int row, int col) => row >= 0 && row < ROW && col >= 0 && col < COL;
 
-    // Check whether cell is blocked (instance method, not static)
     private bool IsUnBlocked(int row, int col)
     {
-        Vector3 samplePos = GridToWorld(row, col);  // world space
+        Vector3 samplePos = GridToWorld(row, col);
         Collider2D[] hits = Physics2D.OverlapCircleAll(samplePos, collisionRadius, collisionMask);
-
         foreach (Collider2D hit in hits)
         {
             if (hit == null) continue;
             if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
             if (hit.CompareTag("Enemy") || hit.CompareTag("Player")) continue;
-            return false;  // obstacle found
+            return false;
         }
         return true;
     }
 
-    private bool IsDestination(int row, int col, Pair dest)
+    // Finds the nearest open node if a point was placed slightly inside a wall
+    private Pair GetNearestOpenCell(Pair cell)
     {
-        return row == dest.first && col == dest.second;
+        if (IsValid(cell.first, cell.second) && IsUnBlocked(cell.first, cell.second))
+            return cell;
+
+        for (int r = 1; r <= 3; r++)
+        {
+            for (int dx = -r; dx <= r; dx++)
+            {
+                for (int dy = -r; dy <= r; dy++)
+                {
+                    int nr = cell.first + dx;
+                    int nc = cell.second + dy;
+                    if (IsValid(nr, nc) && IsUnBlocked(nr, nc))
+                        return new Pair(nr, nc);
+                }
+            }
+        }
+        return cell;
     }
 
-    private double CalculateHValue(int row, int col, Pair dest)
+    public bool ComputePath(Vector3 targetWorldPos)
     {
-        return Math.Sqrt(
-            (row - dest.first) * (row - dest.first)
-            + (col - dest.second) * (col - dest.second));
+        Pair src = GetNearestOpenCell(WorldToGrid(transform.position));
+        Pair dest = GetNearestOpenCell(WorldToGrid(targetWorldPos));
+
+        // Pass targetWorldPos down into AStarSearch
+        currentPath = AStarSearch(src, dest, targetWorldPos);
+        return currentPath != null && currentPath.Count > 0;
     }
 
     // Path reconstruction: returns list of world-space waypoints
@@ -147,55 +155,9 @@ public class EnemyPathfinding : MonoBehaviour
     //      World-space waypoints from source to destination, in order
     private List<Vector2> TracePath(Cell[,] cellDetails, Pair dest)
     {
-        int row = dest.first;
-        int col = dest.second;
-        Stack<Pair> stack = new Stack<Pair>();
-
-        while (!(cellDetails[row, col].parent_i == row && cellDetails[row, col].parent_j == col))
-        {
-            stack.Push(new Pair(row, col));
-            int tempRow = cellDetails[row, col].parent_i;
-            int tempCol = cellDetails[row, col].parent_j;
-            row = tempRow;
-            col = tempCol;
-        }
-        stack.Push(new Pair(row, col));
-
-        List<Vector2> path = new List<Vector2>();
-        while (stack.Count > 0)
-        {
-            Pair p = stack.Pop();
-            path.Add(GridToWorld(p.first, p.second));  // convert to world space
-        }
-        return path;
-    }
-
-    // A* pathfinding algorithm
-    private List<Vector2> AStarSearch(Pair src, Pair dest)
-    {
-        if (!IsValid(src.first, src.second))
-        {
-            Debug.LogWarning("Source is invalid");
-            return null;
-        }
-
-        if (!IsValid(dest.first, dest.second))
-        {
-            Debug.LogWarning("Destination is invalid");
-            return null;
-        }
-
-        if (!IsUnBlocked(src.first, src.second) || !IsUnBlocked(dest.first, dest.second))
-        {
-            Debug.LogWarning("Source or destination is blocked");
-            return null;
-        }
-
-        if (IsDestination(src.first, src.second, dest))
-        {
-            Debug.LogWarning("Already at destination");
-            return null;
-        }
+        if (!IsValid(src.first, src.second) || !IsValid(dest.first, dest.second)) return null;
+        if (!IsUnBlocked(src.first, src.second) || !IsUnBlocked(dest.first, dest.second)) return null;
+        if (src.first == dest.first && src.second == dest.second) return new List<Vector2> { exactDestination };
 
         bool[,] closedList = new bool[ROW, COL];
         Cell[,] cellDetails = new Cell[ROW, COL];
@@ -228,39 +190,37 @@ public class EnemyPathfinding : MonoBehaviour
 
             for (int dir = 0; dir < 8; dir++)
             {
-                int newRow = row + dRow[dir];
-                int newCol = col + dCol[dir];
+                int nRow = row + dRow[dir];
+                int nCol = col + dCol[dir];
 
-                if (!IsValid(newRow, newCol)) continue;
+                if (!IsValid(nRow, nCol)) continue;
 
-                if (IsDestination(newRow, newCol, dest))
+                if (nRow == dest.first && nCol == dest.second)
                 {
-                    cellDetails[newRow, newCol].parent_i = row;
-                    cellDetails[newRow, newCol].parent_j = col;
-                    return TracePath(cellDetails, dest);
+                    cellDetails[nRow, nCol].parent_i = row;
+                    cellDetails[nRow, nCol].parent_j = col;
+                    return TracePath(cellDetails, dest, exactDestination);
                 }
 
-                if (!closedList[newRow, newCol] && IsUnBlocked(newRow, newCol))
+                if (!closedList[nRow, nCol] && IsUnBlocked(nRow, nCol))
                 {
-                    double gNew = cellDetails[row, col].g
-                        + (Math.Abs(dRow[dir]) + Math.Abs(dCol[dir]) == 2 ? 1.414 : 1.0);
-                    double hNew = CalculateHValue(newRow, newCol, dest);
+                    double gNew = cellDetails[row, col].g + (Math.Abs(dRow[dir]) + Math.Abs(dCol[dir]) == 2 ? 1.414 : 1.0);
+                    double hNew = Math.Sqrt(Math.Pow(nRow - dest.first, 2) + Math.Pow(nCol - dest.second, 2));
                     double fNew = gNew + hNew;
 
-                    if (cellDetails[newRow, newCol].f == double.MaxValue
-                        || cellDetails[newRow, newCol].f > fNew)
+                    if (cellDetails[nRow, nCol].f > fNew)
                     {
-                        openList.Enqueue(new Pair(newRow, newCol), fNew);
-                        cellDetails[newRow, newCol].f = fNew;
-                        cellDetails[newRow, newCol].g = gNew;
-                        cellDetails[newRow, newCol].h = hNew;
-                        cellDetails[newRow, newCol].parent_i = row;
-                        cellDetails[newRow, newCol].parent_j = col;
+                        openList.Enqueue(new Pair(nRow, nCol), fNew);
+                        cellDetails[nRow, nCol].f = fNew;
+                        cellDetails[nRow, nCol].g = gNew;
+                        cellDetails[nRow, nCol].h = hNew;
+                        cellDetails[nRow, nCol].parent_i = row;
+                        cellDetails[nRow, nCol].parent_j = col;
                     }
                 }
             }
         }
-        return null;  // no path found
+        return null;
     }
 
     // Public API: compute path from enemy to target
@@ -270,50 +230,51 @@ public class EnemyPathfinding : MonoBehaviour
     // USE: EnemyMovement.MoveTowardSmart() on timer
     public List<Vector2> ComputePath(Vector3 targetWorldPos)
     {
-        Pair src = WorldToGrid(transform.position);
-        Pair dest = WorldToGrid(targetWorldPos);
-        currentPath = AStarSearch(src, dest);
-        return currentPath;
-    }
+        int row = dest.first;
+        int col = dest.second;
+        Stack<Vector2> stack = new Stack<Vector2>();
 
-    // Get next waypoint for movement
-    public Vector2 GetNextWaypoint(Vector2 fallback)
-    {
-        if (currentPath != null && currentPath.Count > 1)
-            return currentPath[1];
-        else if (currentPath != null && currentPath.Count == 1)
-            return currentPath[0];
-        else
-            return fallback;  // no path, head straight at target
-    }
+        // Exact world target is pushed first so it ends up as the final destination
+        stack.Push(exactDestination);
 
-    // Debug drawing
-    private void OnDrawGizmos()
-    {
-        if (drawGrid)
+        while (!(cellDetails[row, col].parent_i == row && cellDetails[row, col].parent_j == col))
         {
-            Gizmos.color = new Color(1f, 1f, 1f, 0.15f);
-            for (int r = 0; r < ROW; r++)
-                for (int c = 0; c < COL; c++)
-                    Gizmos.DrawWireCube(GridToWorld(r, c), Vector3.one * cellSize * 0.9f);
+            stack.Push(GridToWorld(row, col));
+            int tempRow = cellDetails[row, col].parent_i;
+            int tempCol = cellDetails[row, col].parent_j;
+            row = tempRow;
+            col = tempCol;
         }
 
-        if (drawPath && currentPath != null && currentPath.Count > 1)
+        List<Vector2> path = new List<Vector2>();
+        while (stack.Count > 0) path.Add(stack.Pop());
+        return path;
+    }
+
+    // Pops nodes along the path as the enemy reaches them
+    public Vector2 GetCurrentSteeringTarget(Vector2 fallback)
+    {
+        if (currentPath == null || currentPath.Count == 0) return fallback;
+
+        while (currentPath.Count > 0 && Vector2.Distance(transform.position, currentPath[0]) < nodeArriveThreshold)
+        {
+            currentPath.RemoveAt(0);
+        }
+
+        return currentPath.Count > 0 ? currentPath[0] : fallback;
+    }
+
+    public Vector2 GetNextWaypoint(Vector2 fallback) => GetCurrentSteeringTarget(fallback);
+
+    private void OnDrawGizmos()
+    {
+        if (drawPath && currentPath != null && currentPath.Count > 0)
         {
             Gizmos.color = Color.green;
             for (int i = 0; i < currentPath.Count - 1; i++)
                 Gizmos.DrawLine(currentPath[i], currentPath[i + 1]);
             foreach (var wp in currentPath)
                 Gizmos.DrawSphere(wp, 0.1f);
-        }
-
-        // Draw last known position from EnemyVision
-        EnemyVision vision = GetComponent<EnemyVision>();
-        if (vision != null && vision.awareness > 0f)
-        {
-            Gizmos.color = new Color(1f, 1f, 0f, 0.8f);  // yellow
-            Gizmos.DrawWireSphere(vision.lastKnownPosition, 0.3f);
-            Gizmos.DrawLine(transform.position, vision.lastKnownPosition);
         }
     }
 }

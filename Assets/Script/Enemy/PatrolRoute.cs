@@ -39,7 +39,7 @@ public class PatrolRoute : MonoBehaviour
     [SerializeField] private float waypointRadius = 0.2f;   // gizmo dot size, NOT the sample radius
     [SerializeField] private bool showLabels = true;
 
-    public int WaypointCount => waypoints == null ? 0 : waypoints.Length;
+    public int WaypointCount => waypoints != null ? waypoints.Length : 0;
 
     // Applies transform.TransformPoint so moving the PatrolRoute object moves every point
     public Vector3 GetCenter(int i) => transform.TransformPoint(waypoints[i].localPosition);
