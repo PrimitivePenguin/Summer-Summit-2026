@@ -41,13 +41,11 @@ public class PatrolRoute : MonoBehaviour
 
     public int WaypointCount => waypoints == null ? 0 : waypoints.Length;
 
-    /// World-space center of waypoint i. Applies the route transform, so moving
-    /// the PatrolRoute object moves every point with it.
+    // Applies transform.TransformPoint so moving the PatrolRoute object moves every point
     public Vector3 GetCenter(int i) => transform.TransformPoint(waypoints[i].localPosition);
 
-    /// Picks the actual destination for waypoint i.
-    /// radius == 0 returns the exact center; otherwise samples a random point in the
-    /// circle, retrying until one lands inside mapBounds. Call ONCE per arrival.
+    // INPUT: waypoint index, mapBounds, maxSampleAttempts
+    // OUTPUT: world position of the waypoint, sampled inside radius if >0 and inside mapBounds else ret center
     public Vector3 SampleWaypoint(int i)
     {
         if (waypoints == null || i < 0 || i >= waypoints.Length) return transform.position;
@@ -70,7 +68,7 @@ public class PatrolRoute : MonoBehaviour
     public string GetName(int i) =>
         (waypoints != null && i >= 0 && i < waypoints.Length) ? waypoints[i].name : "";
 
-    // ──── GIZMOS — always visible in scene view, no selection needed ────
+    // Toggleable
 
     void OnDrawGizmos()
     {

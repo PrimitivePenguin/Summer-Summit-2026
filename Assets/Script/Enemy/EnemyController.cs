@@ -6,7 +6,9 @@ public enum EnemyArchetype{
     Skirmisher
 }
 
-
+// Runs decision tree
+// INPUT: EnemyVision, PatrolRoute
+// OUTPUT: EnemyMovement, AimController (BulletSpawn object), FOV object
 public class EnemyController : MonoBehaviour
 {
     [Header("Archetype")]
@@ -45,6 +47,8 @@ public class EnemyController : MonoBehaviour
 
     private bool wasAware;
 
+    // INPUT: None
+    // OUTPUT: caches Damageable, HandleDeath -> OnDeath
     void Awake()
     {
         damageable = GetComponent<Damageable>();
@@ -56,12 +60,16 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+
+
     void OnDestroy(){
         if (damageable != null){
             damageable.OnDeath -= HandleDeath;
         }
     }
 
+    // INPUT: bulletSpawn, AimController, scene tag "Player"
+    // OUTPUT: Records defenseAnchor, LevelManager, literally everything
     void Start()
     {
 
@@ -92,6 +100,11 @@ public class EnemyController : MonoBehaviour
         vision.Initialize(playerTransform, aimController);
     }
 
+    // INPUT: canSeePlayer, awareness, lastKnownPosition, wasAware
+    // OUTPUT:
+    //      Calls aimController.AimAt(), movement commands, toggle bulletSpawn.isAutomaticSpawn
+    //      Changing behavior via input -> ExecuteArchetypeMovement() or HandleUnawareState()
+    // Runs every frame
     void Update()
     {
         if (playerTransform == null) return;
@@ -161,6 +174,11 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // INPUT: player position, LOS bool
+    // OUTPUT:
+    //      Chaser: MoveToward() or Search() + toggle bulletSpawn.isAutomaticSpawn
+    //      Defender: MoveToward() or Strafe() + toggle bulletSpawn.isAutomaticSpawn
+    //      Skirmisher: MoveToward(), MoveAwayFrom(), or Strafe() + toggle bulletSpawn.isAutomaticSpawn
     private void ExecuteArchetypeMovement(Vector2 targetPos, bool isDirectSight)
     {
         float distanceToPlayer = Vector2.Distance(transform.position, targetPos);
@@ -253,6 +271,10 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // INPUT: archetype, defenseAnchor, defenseRadius
+    // OUTPUT:
+    //      Defender: MoveToward() to random point inside defenseRadius
+    //      Chaser & Skirmisher: Patrol() along the route
     private void HandleUnawareState()
     {
         switch (archetype)
@@ -276,6 +298,8 @@ public class EnemyController : MonoBehaviour
         }
     }
 
+    // INPUT: None
+    // OUTPUT: Decrements LevelManager enemy count, spawns death effect, destroys self
     private void HandleDeath(){
         // Decrement the count when killed
         if (LevelManager.Instance != null)
@@ -289,6 +313,8 @@ public class EnemyController : MonoBehaviour
         Destroy(gameObject);
     }
 
+    // INPUT: archetype, defenseAnchor, defenseRadius
+    // OUTPUT: Draws a cyan circle around the anchor for Defender archetype
     private void OnDrawGizmosSelected()
     {
         if (archetype == EnemyArchetype.Defender)

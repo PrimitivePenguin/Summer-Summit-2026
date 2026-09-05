@@ -80,6 +80,10 @@ public class EnemyMovement : MonoBehaviour
     }
 
 
+
+    // INPUT: current facing angle (AimController)
+    // OUTPUT: records searchBaseAngle, resets searchTimer, sets isSearching = true, calls Stop()
+    // Call once at start
     public void StartSearching(){
         if (aimController == null) aimController = GetComponent<AimController>();
         if (aimController == null) aimController = GetComponentInChildren<AimController>();
@@ -91,9 +95,14 @@ public class EnemyMovement : MonoBehaviour
     }
     // COMMANDS (called from Update by enemyController)
 
-    /// Move towards world position at move speed
+    /// INPUT: world position
+    /// OUTPUT: sets desiredVelocity toward target at moveSpeed, no pathfinding
+    /// USE: chase and last-known-position movement
     public void MoveToward(Vector2 target) => SetDesiredToward(target, moveSpeed);
 
+    // INPUT: world position, speed
+    // OUTPUT: sets desiredVelocity toward next A* waypoint, recalculate every repathInterval
+    //      Fallback to straight-line
     public void MoveTowardSmart(Vector2 target, float speed)
     {
         if (pathfinding == null) { SetDesiredToward(target, speed); return; }
@@ -111,10 +120,15 @@ public class EnemyMovement : MonoBehaviour
         SetDesiredToward(step, speed);
     }
 
+
     // Convenience overload so existing chase calls don't need to pass a speed
     public void MoveTowardSmart(Vector2 target) => MoveTowardSmart(target, moveSpeed);
 
     // Call when awareness hits zero -> rejoins closest point
+    // INPUT: all waypoint centers from route
+    // OUTPUT:
+    //      1. Set patrolIndex to the closest waypoint
+    //      2. Sample currentPatrolTarget from that waypoint
     public void ResumePatrolFromNearest()
     {
         if (route == null || route.WaypointCount == 0) return;
@@ -127,7 +141,8 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    /// Move away from world position at flee speed
+    // Move away from world position at flee speed
+    // USE: Skirmisher retreat
     public void MoveAwayFrom(Vector2 threat)
     {
         Vector2 dir = ((Vector2)transform.position - threat).normalized;
@@ -147,7 +162,13 @@ public class EnemyMovement : MonoBehaviour
     // Generic command to move in a direction at a given speed (normalized direction)
     public void Move(Vector2 direction, float speed) => SetDesired(direction.normalized * speed);
 
+
     // Patrol through a list of points in order, looping back to the start
+    // INPUT: route, currentPatrolTarget, patrolIndex, arriveRadius
+    // OUTPUT:
+    //      1. MoveTowardSmart() to currentPatrolTarget
+    //      2. If within arriveRadius, advance patrolIndex and sample next currentPatrolTarget
+    // USE: Chaser and Skirmisher archetypes
     public void Patrol()
     {
         if (route == null || route.WaypointCount == 0)
@@ -176,7 +197,8 @@ public class EnemyMovement : MonoBehaviour
         }
     }
 
-    // Search
+    // INPUT: searchBaseAngle, searchTimer, searchSweepAngle, searchSweepSpeed, aimController
+    // OUTPUT: oscillates the facing angle back and forth, calls aimController.SnapTo()
     public void Search()
     {
         // 1. Ensure body does not drift
@@ -195,6 +217,7 @@ public class EnemyMovement : MonoBehaviour
         aimController.SnapTo(targetAngle);
     }
 
+    // Stop the search behavior
     public void StopSearching(){
         isSearching = false;
     }

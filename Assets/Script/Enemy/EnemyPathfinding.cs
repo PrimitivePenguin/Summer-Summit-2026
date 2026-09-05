@@ -2,6 +2,10 @@ using UnityEngine;
 using System;
 using System.Collections.Generic;
 
+// Runs A* on grid centered around GameObject (usually enemy)
+// Grid moves with enemy
+
+
 [RequireComponent(typeof(EnemyMovement))]
 public class EnemyPathfinding : MonoBehaviour
 {
@@ -85,6 +89,7 @@ public class EnemyPathfinding : MonoBehaviour
     }
 
     // Grid -> World coordinate conversion (parent-centered)
+
     private Vector3 GridToWorld(int row, int col)
     {
         float xOffset = (col - (COL - 1) * 0.5f) * cellSize;
@@ -93,6 +98,7 @@ public class EnemyPathfinding : MonoBehaviour
     }
 
     // World -> Grid coordinate conversion
+    // USE: convert enemy pos into grid coordinates for A* search
     private Pair WorldToGrid(Vector3 worldPos)
     {
         Vector3 local = worldPos - transform.position;
@@ -101,7 +107,7 @@ public class EnemyPathfinding : MonoBehaviour
         return new Pair(row, col);
     }
 
-    // Check whether cell is valid
+    // Check whether cell is within grid bound via obstacle collider
     private bool IsValid(int row, int col)
     {
         return row >= 0 && row < ROW && col >= 0 && col < COL;
@@ -136,6 +142,9 @@ public class EnemyPathfinding : MonoBehaviour
     }
 
     // Path reconstruction: returns list of world-space waypoints
+    // INPUT: all Cell grid, parentlinks, destination
+    // OUTPUT: List <Vector2>
+    //      World-space waypoints from source to destination, in order
     private List<Vector2> TracePath(Cell[,] cellDetails, Pair dest)
     {
         int row = dest.first;
@@ -255,6 +264,10 @@ public class EnemyPathfinding : MonoBehaviour
     }
 
     // Public API: compute path from enemy to target
+
+    // INPUT: world-space target position
+    // OUTPUT: return results as currentPath
+    // USE: EnemyMovement.MoveTowardSmart() on timer
     public List<Vector2> ComputePath(Vector3 targetWorldPos)
     {
         Pair src = WorldToGrid(transform.position);

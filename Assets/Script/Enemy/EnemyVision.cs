@@ -27,7 +27,9 @@ public class EnemyVision : MonoBehaviour
     Transform player;
     AimController aimController;
 
-    // Initialize: called from the enemyController's Start()
+
+    // INPUT: player transform, aimController
+    // OUTPUT: stores both, auto-fills walllayer to collision
     public void Initialize(Transform player, AimController aimController)
     {
         this.player = player;
@@ -38,6 +40,8 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
+    // INPUT: player position, aimController facing angle, awarenessDecayRate
+    // OUTPUT: updates canSeePlayer, awareness, and lastKnownPosition
     // called every frame by the controller
     public void Tick()
     {
@@ -64,7 +68,8 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
-    // Player inside the cone AND within viewDistance AND no wall in between
+    // INPUT: player position, viewDistance, fovAngle, wallLayer
+    // OUTPUT: distance -> angle -> raycast -> true
     bool CheckPlayerVisible()
     {
         if (player == null) return false;
