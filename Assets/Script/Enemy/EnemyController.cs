@@ -1,327 +1,262 @@
 using UnityEngine;
 
-public enum EnemyArchetype{
-    Chaser,
-    Defender,
-    Skirmisher
+// The five behavioural states. If EnemyEnums.cs already declares an EnemyState,
+// DELETE ONE OF THEM — C# will not compile two enums with the same name in the
+// same assembly.
+public enum EnemyState
+{
+    Idle,        // player outside load range and no awareness — do nothing at all
+    Patrol,      // awareness zero, player is loaded — route or guard-wander
+    Engage,      // direct line of sight right now
+    Investigate, // lost sight, awareness above zero — head for the last known position
+    Search       // arrived at the last known position — sweep in place
 }
 
-// Runs decision tree
-// INPUT: EnemyVision, PatrolRoute
-// OUTPUT: EnemyMovement, AimController (BulletSpawn object), FOV object
+// Decides WHICH state the enemy is in. Never decides HOW to execute it — that is
+// delegated to the assigned ArchetypeBehavior asset.
+//
+// INPUT:  EnemyVision (canSeePlayer, awareness, lastKnownPosition, IsPlayerInLoadRange)
+// OUTPUT: state transitions, then one behavior call per frame
+//
+// TO ADD A BEHAVIOUR: write a new ArchetypeBehavior subclass and make an asset.
+// This file does not change.
+// TO ADD A STATE: one enum entry, one case in EvaluateTransitions, one case in the
+// Update switch, and optionally an enter/exit hook in SetState.
 public class EnemyController : MonoBehaviour
 {
-    [Header("Archetype")]
-    [SerializeField] private EnemyArchetype archetype = EnemyArchetype.Skirmisher;
+    [Header("Behavior")]
+    [SerializeField] private ArchetypeBehavior behavior;   // drag a Chaser/Skirmisher/Defender asset
 
     [Header("Components")]
     [SerializeField] private BulletSpawn bulletSpawn;
     [SerializeField] private AimController aimController;
+
+    [Header("Investigation")]
+    [SerializeField] private float investigateArriveRadius = 0.6f;
+    [SerializeField] private float investigateTimeout = 8f;   // defenders never "arrive" — this
+                                                              // is what moves them on to Search
+
+    [Header("Death")]
+    [SerializeField] private GameObject deathEffectPrefab;
+
+    [Header("Debug")]
+    [SerializeField] private bool logTransitions = false;
+
     private EnemyVision vision;
     private EnemyMovement movement;
     private Damageable damageable;
     private Transform playerTransform;
 
-    [Header("Death Settings")]
-    [SerializeField] private GameObject deathEffectPrefab;
+    private EnemyState state = EnemyState.Idle;
+    private float stateTimer;
+    private EnemyContext ctx;
 
-    [Header("DefenderSettings")]
-    [SerializeField] private float defenseRadius = 3.5f;
-    private Vector2 defenseAnchor;
+    // INPUT:  none
+    // OUTPUT: current state — for debug HUDs and gizmos
+    public EnemyState CurrentState => state;
 
-    [Header("Skirmisher Settings")]
-    [SerializeField] private float preferredMinDist = 4.0f; // retreat if player is too close
-    [SerializeField] private float preferredMaxDist = 7.0f; // advance if player is too far
-    [SerializeField] private bool strafeClockwise = true;
-    [SerializeField] private float strafeSwitchInterval = 2.5f;
-    private float strafeTimer;
+    // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    [Header("Chaser Settings")]
-    [SerializeField] private float attackRange = 2.2f; // Point Blank Range to blast you
-
-    [Header("Defender Patrol")]
-    [SerializeField] private float defenderWanderInterval = 3f;
-    private float wanderTimer;
-    private Vector2 wanderTarget;
-
-
-    private bool wasAware;
-
-    // INPUT: None
-    // OUTPUT: caches Damageable, HandleDeath -> OnDeath
+    // INPUT:  none
+    // OUTPUT: caches Damageable and subscribes HandleDeath
     void Awake()
     {
         damageable = GetComponent<Damageable>();
-        if (damageable != null){
+        if (damageable != null)
             damageable.OnDeath += HandleDeath;
-        }
-        else{
-            Debug.LogWarning($"[EnemyController] No Damageable Component found on {gameObject.name}!");
-        }
+        else
+            Debug.LogWarning($"[EnemyController] No Damageable on {name}");
     }
 
-
-
-    void OnDestroy(){
-        if (damageable != null){
+    // INPUT:  none
+    // OUTPUT: unsubscribes the death handler
+    // USE:    prevents a dangling delegate when the enemy is destroyed
+    void OnDestroy()
+    {
+        if (damageable != null)
             damageable.OnDeath -= HandleDeath;
-        }
     }
 
-    // INPUT: bulletSpawn, AimController, scene tag "Player"
-    // OUTPUT: Records defenseAnchor, LevelManager, literally everything
+    // INPUT:  inspector refs, scene tag "Player"
+    // OUTPUT: resolves components, registers with LevelManager, builds the EnemyContext
+    // USE:    the context is built ONCE per enemy — behavior assets are shared and
+    //         must not hold per-enemy state
     void Start()
     {
-
-        // 1. Tell LevelManager this enemy exists (works for pre-placed or spawned enemies)
         if (LevelManager.Instance != null)
-        {
             LevelManager.Instance.RegisterEnemy();
-        }
 
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
-        if (aimController == null) aimController = GetComponentInChildren<AimController>();
+
+        // AimController MUST be on the root. On a child, rotation never propagates to
+        // sibling components, so the FOV cone and bullet spawn point diverge.
+        if (aimController == null) aimController = GetComponent<AimController>();
+        if (aimController == null)
+            Debug.LogError($"[EnemyController] AimController must be on the ROOT of {name}");
+
         vision = GetComponent<EnemyVision>();
         movement = GetComponent<EnemyMovement>();
 
         if (vision == null)
         {
-            Debug.LogError($"[EnemyAI] EnemyVision not found on {gameObject.name} � is it on the root object?");
-            return; // stops Start here so Initialize doesn't throw on top of it
+            Debug.LogError($"[EnemyController] EnemyVision not found on {name} — is it on the root?");
+            return;
         }
-    
-
-
-        defenseAnchor = transform.position;
+        if (behavior == null)
+        {
+            Debug.LogError($"[EnemyController] No ArchetypeBehavior assigned to {name}");
+            return;
+        }
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) playerTransform = player.transform;
 
         vision.Initialize(playerTransform, aimController);
+
+        ctx = new EnemyContext
+        {
+            self = transform,
+            movement = movement,
+            aim = aimController,
+            bulletSpawn = bulletSpawn,
+            vision = vision,
+            anchor = transform.position
+        };
     }
 
-    // INPUT: canSeePlayer, awareness, lastKnownPosition, wasAware
-    // OUTPUT:
-    //      Calls aimController.AimAt(), movement commands, toggle bulletSpawn.isAutomaticSpawn
-    //      Changing behavior via input -> ExecuteArchetypeMovement() or HandleUnawareState()
-    // Runs every frame
+    // ── Frame loop ────────────────────────────────────────────────────────────
+
+    // INPUT:  vision state
+    // OUTPUT: evaluates transitions, refreshes the context, dispatches to the behavior
+    // USE:    exactly one behavior call per frame — no nested archetype branching here
     void Update()
     {
-        if (playerTransform == null) return;
+        if (playerTransform == null || behavior == null || vision == null || ctx == null) return;
 
         vision.Tick();
+        stateTimer -= Time.deltaTime;
 
-        if (vision.canSeePlayer)
+        EvaluateTransitions();
+
+        // Engage tracks the live player; every other state works off the remembered fix.
+        ctx.targetPos = (state == EnemyState.Engage)
+            ? (Vector2)playerTransform.position
+            : vision.lastKnownPosition;
+        ctx.distToTarget = Vector2.Distance(transform.position, ctx.targetPos);
+
+        switch (state)
         {
-            wasAware = true;
-            Vector2 targetPos = playerTransform.position;
-            aimController.AimAt(targetPos);
-
-            // Execute archetype-specific positioning & firing logic
-            ExecuteArchetypeMovement(targetPos, isDirectSight: true);
+            case EnemyState.Idle: movement.Stop(); break;
+            case EnemyState.Patrol: behavior.Idle(ctx); break;
+            case EnemyState.Engage: behavior.Engage(ctx); break;
+            case EnemyState.Investigate: behavior.Investigate(ctx); break;
+            case EnemyState.Search: behavior.Search(ctx); break;
         }
-        else if (vision.awareness > 0f)
+    }
+
+    // INPUT:  vision.canSeePlayer, vision.awareness, vision.IsPlayerInLoadRange, stateTimer
+    // OUTPUT: may call SetState
+    // USE:    pure transition logic — no archetype knowledge, no movement calls
+    private void EvaluateTransitions()
+    {
+        // Direct sight outranks everything, from any state.
+        if (vision.canSeePlayer) { SetState(EnemyState.Engage); return; }
+
+        switch (state)
         {
-            Vector2 lastSeen = vision.lastKnownPosition;
-            wasAware = true;
-            bulletSpawn.isAutomaticSpawn = false;
+            case EnemyState.Idle:
+                if (vision.IsPlayerInLoadRange()) SetState(EnemyState.Patrol);
+                break;
 
-            if (archetype == EnemyArchetype.Defender)
-            {
-                // Defender watches the corner where you vanished, but NEVER leaves its anchor
-                aimController.AimAt(lastSeen);
+            case EnemyState.Patrol:
+                if (vision.awareness > 0f) SetState(EnemyState.Investigate);
+                else if (!vision.IsPlayerInLoadRange()) SetState(EnemyState.Idle);
+                break;
 
-                float distFromAnchor = Vector2.Distance(transform.position, defenseAnchor);
-                if (distFromAnchor > 0.5f)
-                {
-                    movement.MoveToward(defenseAnchor);
-                }
-                else
-                {
-                    movement.Stop();
-                }
-            }
-            else
-            {
-                // Chasers and Skirmishers advance to investigate
-                aimController.AimAt(lastSeen);
+            case EnemyState.Engage:
+                SetState(EnemyState.Investigate);   // sight broke this frame
+                break;
 
-                float distToLastSeen = Vector2.Distance(transform.position, lastSeen);
-                if (distToLastSeen > 0.6f)
-                {
-                    movement.MoveToward(lastSeen);
-                }
-                else
-                {
-                    movement.Search();
-                }
-            }
+            case EnemyState.Investigate:
+                // Arrived, or ran out of patience. Defenders never arrive, so the
+                // timeout is what advances them.
+                if (movement.IsInRange(vision.lastKnownPosition, investigateArriveRadius)
+                    || stateTimer <= 0f)
+                    SetState(EnemyState.Search);
+                break;
+
+            case EnemyState.Search:
+                // Search() clears IsSearching when its duration expires.
+                if (vision.awareness <= 0f || !movement.IsSearching())
+                    SetState(EnemyState.Patrol);
+                break;
         }
-        else
+    }
+
+    // INPUT:  target state
+    // OUTPUT: runs exit hooks, swaps state, runs enter hooks
+    // USE:    the ONLY place side effects fire on a state change. StartSearching is
+    //         called exactly once per Search entry (calling it per frame would reset
+    //         the sweep forever), and ResumePatrolFromNearest only on entering Patrol.
+    private void SetState(EnemyState next)
+    {
+        if (next == state) return;
+        Debug.Log($"[{name}] state: {state} → {next}");
+        // EXIT
+        if (state == EnemyState.Search) movement.StopSearching();
+
+        state = next;
+        stateTimer = 0f;
+
+        // ENTER
+        switch (next)
         {
-            // Unaware state
-            bulletSpawn.isAutomaticSpawn = false;
-            if (wasAware)
-            {
-                wasAware = false;
+            case EnemyState.Search: movement.StartSearching(); break;
+            case EnemyState.Patrol: 
+                vision.ForgetLastKnown();       
                 movement.ResumePatrolFromNearest();
-                movement.StartSearching();
-            }
-            else
-            {
-                HandleUnawareState();
-            }
+                break;
+
+            case EnemyState.Investigate: stateTimer = investigateTimeout; break;
+            case EnemyState.Idle: movement.Stop(); break;
         }
+
+        // Hard safety: nothing outside Engage may leave the trigger held down.
+        if (bulletSpawn != null && next != EnemyState.Engage)
+            bulletSpawn.isAutomaticSpawn = false;
+
+        if (logTransitions) Debug.Log($"[EnemyController] {name} → {next}");
     }
 
-    // INPUT: player position, LOS bool
-    // OUTPUT:
-    //      Chaser: MoveToward() or Search() + toggle bulletSpawn.isAutomaticSpawn
-    //      Defender: MoveToward() or Strafe() + toggle bulletSpawn.isAutomaticSpawn
-    //      Skirmisher: MoveToward(), MoveAwayFrom(), or Strafe() + toggle bulletSpawn.isAutomaticSpawn
-    private void ExecuteArchetypeMovement(Vector2 targetPos, bool isDirectSight)
+    // ── Death ─────────────────────────────────────────────────────────────────
+
+    // INPUT:  none (raised by Damageable.OnDeath)
+    // OUTPUT: decrements the LevelManager count, spawns the death effect, destroys self
+    private void HandleDeath()
     {
-        float distanceToPlayer = Vector2.Distance(transform.position, targetPos);
-
-        switch (archetype)
-        {
-            case EnemyArchetype.Chaser:
-                // Sprints into close range; pauses to blast
-                if (distanceToPlayer <= attackRange)
-                {
-                    movement.Search();
-                    bulletSpawn.isAutomaticSpawn = true;
-                }
-                else
-                {
-                    movement.MoveToward(targetPos);
-                    bulletSpawn.isAutomaticSpawn = false; // Hold fire until within blast range
-                }
-                break;
-
-            case EnemyArchetype.Defender:
-                float myDistFromAnchor = Vector2.Distance(transform.position, defenseAnchor);
-                float playerDistFromAnchor = Vector2.Distance(targetPos, defenseAnchor);
-
-                // 1. Hard leash: pulled past boundary -> force return immediately
-                if (myDistFromAnchor > defenseRadius)
-                {
-                    movement.MoveToward(defenseAnchor);
-                }
-                // 2. Player invaded the defense perimeter: close in or strafe around them
-                else if (playerDistFromAnchor <= defenseRadius)
-                {
-                    // Strafe around the invader while inside the zone
-                    movement.Strafe(targetPos, strafeClockwise);
-                }
-                // 3. Player is outside the perimeter: advance to edge or circle the anchor
-                else
-                {
-                    // If still near center, push up toward player until hitting the boundary
-                    if (myDistFromAnchor < defenseRadius * 0.8f)
-                    {
-                        movement.MoveToward(targetPos);
-                    }
-                    else
-                    {
-                        // At the border: strafe around the anchor to stay mobile without leaving
-                        movement.Strafe(defenseAnchor, strafeClockwise);
-                    }
-                }
-
-                // Toggle strafe direction periodically so it doesn't get stuck on obstacles
-                strafeTimer -= Time.deltaTime;
-                if (strafeTimer <= 0f)
-                {
-                    strafeClockwise = !strafeClockwise;
-                    strafeTimer = strafeSwitchInterval;
-                }
-
-                bulletSpawn.isAutomaticSpawn = aimController.IsAimedAt(targetPos, 15f);
-                break;
-
-            case EnemyArchetype.Skirmisher:
-                // Clockwise/counter-clockwise strafe oscillation
-                strafeTimer -= Time.deltaTime;
-                if (strafeTimer <= 0f)
-                {
-                    strafeClockwise = !strafeClockwise;
-                    strafeTimer = strafeSwitchInterval;
-                }
-
-                // Zone the player
-                if (distanceToPlayer < preferredMinDist)
-                {
-                    // Back up
-                    movement.MoveAwayFrom(targetPos);
-                }
-                else if (distanceToPlayer > preferredMaxDist)
-                {
-                    // Close the gap
-                    movement.MoveToward(targetPos);
-                }
-                else
-                {
-                    // Sweet spot: circle-strafe
-                    movement.Strafe(targetPos, strafeClockwise);
-                }
-
-                bulletSpawn.isAutomaticSpawn = true;
-                break;
-        }
-    }
-
-    // INPUT: archetype, defenseAnchor, defenseRadius
-    // OUTPUT:
-    //      Defender: MoveToward() to random point inside defenseRadius
-    //      Chaser & Skirmisher: Patrol() along the route
-    private void HandleUnawareState()
-    {
-        switch (archetype)
-        {
-            case EnemyArchetype.Defender:
-                wanderTimer -= Time.deltaTime;
-                if (wanderTimer <= 0f || Vector2.Distance(transform.position, wanderTarget) < 0.4f)
-                {
-                    // Pick a new random point inside the defense radius
-                    wanderTarget = defenseAnchor + (Random.insideUnitCircle * (defenseRadius * 0.7f));
-                    wanderTimer = defenderWanderInterval;
-                }
-
-                movement.MoveToward(wanderTarget);
-                break;
-
-            case EnemyArchetype.Chaser:
-            case EnemyArchetype.Skirmisher:
-                movement.Patrol();
-                break;
-        }
-    }
-
-    // INPUT: None
-    // OUTPUT: Decrements LevelManager enemy count, spawns death effect, destroys self
-    private void HandleDeath(){
-        // Decrement the count when killed
         if (LevelManager.Instance != null)
-        {
             LevelManager.Instance.UnregisterEnemy();
-        }
 
-        if (deathEffectPrefab != null){
+        if (deathEffectPrefab != null)
             Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
-        }
+
         Destroy(gameObject);
     }
 
-    // INPUT: archetype, defenseAnchor, defenseRadius
-    // OUTPUT: Draws a cyan circle around the anchor for Defender archetype
+    // ── Debug ─────────────────────────────────────────────────────────────────
+
+    // INPUT:  behavior, anchor
+    // OUTPUT: draws the Defender leash and the current state label
+    // USE:    Scene view, selected object only
     private void OnDrawGizmosSelected()
     {
-        if (archetype == EnemyArchetype.Defender)
+        if (behavior is DefenderBehavior def)
         {
             Gizmos.color = Color.cyan;
-            Vector3 center = Application.isPlaying ? (Vector3)defenseAnchor : transform.position;
-            Gizmos.DrawWireSphere(center, defenseRadius);
+            Vector3 centre = (Application.isPlaying && ctx != null)
+                ? (Vector3)ctx.anchor
+                : transform.position;
+            Gizmos.DrawWireSphere(centre, def.GetDefenseRadius());
         }
     }
 }
