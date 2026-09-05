@@ -38,7 +38,7 @@ public class EnemyVision : MonoBehaviour
         }
     }
 
-    // called every frame by the controller (this component never self-Updates)
+    // called every frame by the controller
     public void Tick()
     {
         if (player == null) return;

@@ -42,6 +42,9 @@ public class EnemyController : MonoBehaviour
     private float wanderTimer;
     private Vector2 wanderTarget;
 
+
+    private bool wasAware;
+
     void Awake()
     {
         damageable = GetComponent<Damageable>();
@@ -75,9 +78,11 @@ public class EnemyController : MonoBehaviour
 
         if (vision == null)
         {
-            Debug.LogError($"[EnemyAI] EnemyVision not found on {gameObject.name} — is it on the root object?");
+            Debug.LogError($"[EnemyAI] EnemyVision not found on {gameObject.name} ï¿½ is it on the root object?");
             return; // stops Start here so Initialize doesn't throw on top of it
         }
+    
+
 
         defenseAnchor = transform.position;
 
@@ -95,6 +100,7 @@ public class EnemyController : MonoBehaviour
 
         if (vision.canSeePlayer)
         {
+            wasAware = true;
             Vector2 targetPos = playerTransform.position;
             aimController.AimAt(targetPos);
 
@@ -104,6 +110,7 @@ public class EnemyController : MonoBehaviour
         else if (vision.awareness > 0f)
         {
             Vector2 lastSeen = vision.lastKnownPosition;
+            wasAware = true;
             bulletSpawn.isAutomaticSpawn = false;
 
             if (archetype == EnemyArchetype.Defender)
@@ -141,7 +148,16 @@ public class EnemyController : MonoBehaviour
         {
             // Unaware state
             bulletSpawn.isAutomaticSpawn = false;
-            HandleUnawareState();
+            if (wasAware)
+            {
+                wasAware = false;
+                movement.ResumePatrolFromNearest();
+                movement.StartSearching();
+            }
+            else
+            {
+                HandleUnawareState();
+            }
         }
     }
 

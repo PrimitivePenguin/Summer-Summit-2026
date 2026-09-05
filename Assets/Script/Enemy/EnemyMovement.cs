@@ -16,26 +16,27 @@ public class EnemyMovement : MonoBehaviour
     [SerializeField] private float arriveRadius = 0.3f; // "close enough" threshold
 
     [Header("Patrol")]
-    [SerializeField] private Transform[] patrolPoints;
+    [SerializeField] private PatrolRoute patrolRoute;
+
 
     [Header("Search Settings")]
     [SerializeField] private AimController aimController;
     [SerializeField] private float searchSweepAngle = 50f;
     [SerializeField] private float searchSweepSpeed = 2f; // oscillation speed
 
+    [Header("Pathfinding")]
+    [SerializeField] private EnemyPathfinding pathfinding;
+    [SerializeField] private float repathInterval = 0.5f;
+    private float repathTimer;
+
     private float searchBaseAngle;
     private bool isSearching;
     private float searchTimer;
 
-    public void StartSearching(){
-        if (aimController == null) aimController = GetComponent<AimController>();
-        if (aimController == null) aimController = GetComponentInChildren<AimController>();
-
-        searchBaseAngle = aimController != null ? aimController.GetFacingAngle() : transform.eulerAngles.z;
-        searchTimer = 0f;
-        isSearching = true;
-        Stop();
-    }
+    [Header("Patrol")]
+    
+    private PatrolRoute route; 
+    private Vector3 currentPatrolTarget;
 
     [Header("Animation (optional)")]
     [SerializeField] private Animator animator;         // leave null if unused
@@ -52,6 +53,25 @@ public class EnemyMovement : MonoBehaviour
         if (animator == null) animator = GetComponent<Animator>();
     }
 
+    private void Start()
+    {
+        if (pathfinding == null) pathfinding = GetComponent<EnemyPathfinding>();
+
+        route = patrolRoute;
+
+        if (route != null && route.WaypointCount > 0)
+        {
+            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+            Debug.Log($"[{gameObject.name}] PatrolRoute ready, first target: {currentPatrolTarget}");
+        }
+        else
+        {
+            // Don't return — other Start() logic still needs to run
+            Debug.LogWarning($"[EnemyMovement] No PatrolRoute on {gameObject.name}, patrol disabled.");
+        }
+    }    
+
+
     public void Initialize(float moveSpeed, float patrolSpeed, float fleeSpeed)
     {
         this.moveSpeed = moveSpeed;
@@ -59,10 +79,53 @@ public class EnemyMovement : MonoBehaviour
         this.fleeSpeed = fleeSpeed;
     }
 
+
+    public void StartSearching(){
+        if (aimController == null) aimController = GetComponent<AimController>();
+        if (aimController == null) aimController = GetComponentInChildren<AimController>();
+
+        searchBaseAngle = aimController != null ? aimController.GetFacingAngle() : transform.eulerAngles.z;
+        searchTimer = 0f;
+        isSearching = true;
+        Stop();
+    }
     // COMMANDS (called from Update by enemyController)
 
     /// Move towards world position at move speed
     public void MoveToward(Vector2 target) => SetDesiredToward(target, moveSpeed);
+
+    public void MoveTowardSmart(Vector2 target, float speed)
+    {
+        if (pathfinding == null) { SetDesiredToward(target, speed); return; }
+
+        // Recompute A* every couple seconds
+        repathTimer -= Time.deltaTime;
+        if (repathTimer <= 0f)
+        {
+            pathfinding.ComputePath(target);
+            repathTimer = repathInterval;
+        }
+
+        // GetNextWaypoint returns `target` itself when no path is available
+        Vector2 step = pathfinding.GetNextWaypoint(target);
+        SetDesiredToward(step, speed);
+    }
+
+    // Convenience overload so existing chase calls don't need to pass a speed
+    public void MoveTowardSmart(Vector2 target) => MoveTowardSmart(target, moveSpeed);
+
+    // Call when awareness hits zero -> rejoins closest point
+    public void ResumePatrolFromNearest()
+    {
+        if (route == null || route.WaypointCount == 0) return;
+
+        float best = float.MaxValue;
+        for (int i = 0; i < route.WaypointCount; i++)
+        {
+            float d = Vector2.SqrMagnitude((Vector2)route.GetCenter(i) - (Vector2)transform.position);
+            if (d < best) { best = d; patrolIndex = i; }
+        }
+    }
 
     /// Move away from world position at flee speed
     public void MoveAwayFrom(Vector2 threat)
@@ -87,13 +150,30 @@ public class EnemyMovement : MonoBehaviour
     // Patrol through a list of points in order, looping back to the start
     public void Patrol()
     {
-        if (patrolPoints == null || patrolPoints.Length == 0) { Stop(); return; }
+        if (route == null || route.WaypointCount == 0)
+        {
+            Debug.LogWarning($"[EnemyMovement] Patrol() called but route is null/empty on {gameObject.name}");
+            Stop();
+            return;
+        }
 
-        Vector2 target = patrolPoints[patrolIndex].position;
-        SetDesiredToward(target, patrolSpeed);
+        // currentPatrolTarget is zero if Start() returned early — catch it here
+        if (currentPatrolTarget == Vector3.zero)
+        {
+            Debug.LogWarning($"[EnemyMovement] currentPatrolTarget was zero, resampling on {gameObject.name}");
+            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+        }
 
-        if (IsInRange(target, arriveRadius))
-            patrolIndex = (patrolIndex + 1) % patrolPoints.Length;
+        Debug.Log($"[{gameObject.name}] Patrolling → point {patrolIndex} at {currentPatrolTarget}, distance: {Vector2.Distance(transform.position, currentPatrolTarget):F2}, arriveRadius: {arriveRadius}");
+
+        MoveTowardSmart(currentPatrolTarget, patrolSpeed);
+
+        if (IsInRange(currentPatrolTarget, arriveRadius))
+        {
+            Debug.Log($"[{gameObject.name}] Arrived at point {patrolIndex}, advancing to next");
+            patrolIndex = (patrolIndex + 1) % route.WaypointCount;
+            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+        }
     }
 
     // Search
