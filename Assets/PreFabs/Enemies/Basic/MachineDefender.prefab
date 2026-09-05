@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 5972414225453950108}
   - component: {fileID: 1738397814050964276}
   - component: {fileID: 4091662859185343216}
+  - component: {fileID: 4602628808552648392}
   m_Layer: 7
   m_Name: MachineDefender
   m_TagString: Untagged
@@ -250,10 +251,12 @@ MonoBehaviour:
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
+  pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!50 &1738397814050964276
 Rigidbody2D:
@@ -281,7 +284,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &4091662859185343216
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -328,6 +331,28 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &4602628808552648392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4059057970428860086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
+  ROW: 40
+  COL: 40
+  cellSize: 1
+  gridOrigin: {x: 0, y: 0}
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  collisionRadius: 0.25
+  nodeArriveThreshold: 0.35
+  drawPath: 1
 --- !u!1 &4459775476906548105
 GameObject:
   m_ObjectHideFlags: 0

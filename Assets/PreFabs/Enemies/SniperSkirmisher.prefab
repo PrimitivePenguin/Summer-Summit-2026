@@ -170,11 +170,12 @@ MonoBehaviour:
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
   pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!114 &5786165751332103728
 MonoBehaviour:
@@ -191,11 +192,12 @@ MonoBehaviour:
   ROW: 15
   COL: 15
   cellSize: 1
+  gridOrigin: {x: 0, y: 0}
   collisionMask:
     serializedVersion: 2
     m_Bits: 0
   collisionRadius: 0.25
-  drawGrid: 0
+  nodeArriveThreshold: 0.35
   drawPath: 0
 --- !u!1 &7988409628926426186
 GameObject:
@@ -266,7 +268,6 @@ MonoBehaviour:
   archetype: 1
   bulletSpawn: {fileID: 2131929070658610819}
   aimController: {fileID: 0}
-  repathInterval: 0.4
   deathEffectPrefab: {fileID: 0}
   defenseRadius: 3.5
   preferredMinDist: 8
@@ -274,6 +275,7 @@ MonoBehaviour:
   strafeClockwise: 1
   strafeSwitchInterval: 2.5
   attackRange: 3
+  defenderWanderInterval: 3
 --- !u!114 &2834166205042450880
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -325,11 +327,12 @@ MonoBehaviour:
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
   pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!50 &5976080292480199060
 Rigidbody2D:
@@ -357,7 +360,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &4066059790298895472
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -416,15 +419,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
-  ROW: 15
-  COL: 15
+  ROW: 40
+  COL: 40
   cellSize: 1
+  gridOrigin: {x: 0, y: 0}
   collisionMask:
     serializedVersion: 2
     m_Bits: 0
   collisionRadius: 0.25
-  drawGrid: 0
-  drawPath: 0
+  nodeArriveThreshold: 0.35
+  drawPath: 1
 --- !u!1 &8285996991569574156
 GameObject:
   m_ObjectHideFlags: 0

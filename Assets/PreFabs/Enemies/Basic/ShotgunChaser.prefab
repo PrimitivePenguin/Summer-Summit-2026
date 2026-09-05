@@ -139,6 +139,7 @@ GameObject:
   - component: {fileID: 7388497202219580985}
   - component: {fileID: 1745130089143834966}
   - component: {fileID: 5034455241719445226}
+  - component: {fileID: 759571019669038176}
   m_Layer: 7
   m_Name: ShotgunChaser
   m_TagString: Untagged
@@ -230,7 +231,7 @@ MonoBehaviour:
     m_Bits: 8
   viewDistance: 8
   fovAngle: 60
-  senseDistance: 12
+  senseDistance: 2
   loadDistance: 15
   awarenessDecayRate: 0.5
 --- !u!114 &7388497202219580985
@@ -246,14 +247,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
   moveSpeed: 3
-  patrolSpeed: 1.5
+  patrolSpeed: 3
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
+  pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!50 &1745130089143834966
 Rigidbody2D:
@@ -281,7 +284,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &5034455241719445226
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -328,6 +331,28 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &759571019669038176
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4225760765634330708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
+  ROW: 40
+  COL: 40
+  cellSize: 1
+  gridOrigin: {x: 0, y: 0}
+  collisionMask:
+    serializedVersion: 2
+    m_Bits: 8
+  collisionRadius: 0.25
+  nodeArriveThreshold: 0.35
+  drawPath: 1
 --- !u!1 &6548666092045439749
 GameObject:
   m_ObjectHideFlags: 0

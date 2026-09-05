@@ -69,7 +69,6 @@ MonoBehaviour:
   archetype: 2
   bulletSpawn: {fileID: 2857135532043532110}
   aimController: {fileID: 0}
-  repathInterval: 0.4
   deathEffectPrefab: {fileID: 0}
   defenseRadius: 3.5
   preferredMinDist: 4
@@ -77,6 +76,7 @@ MonoBehaviour:
   strafeClockwise: 1
   strafeSwitchInterval: 2.5
   attackRange: 2.2
+  defenderWanderInterval: 3
 --- !u!114 &4513418019843076319
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,11 +128,12 @@ MonoBehaviour:
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
   pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!50 &3541634969774971442
 Rigidbody2D:
@@ -160,7 +161,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &3682421233183637696
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -219,14 +220,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
-  ROW: 15
-  COL: 15
+  ROW: 40
+  COL: 40
   cellSize: 1
+  gridOrigin: {x: 0, y: 0}
   collisionMask:
     serializedVersion: 2
     m_Bits: 0
   collisionRadius: 0.25
-  drawGrid: 1
+  nodeArriveThreshold: 0.35
   drawPath: 1
 --- !u!1 &4911893219644017941
 GameObject:
