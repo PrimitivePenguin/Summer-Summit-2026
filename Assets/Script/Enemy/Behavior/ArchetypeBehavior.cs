@@ -46,7 +46,6 @@ public abstract class ArchetypeBehavior : ScriptableObject
     protected void SetFiring(EnemyContext c, bool wantsToFire)
     {
         if (c.bulletSpawn == null) return;
-        Debug.Log($"[{c.self.name}] wants to fire but not aimed (tol {aimTolerance}°)");
 
         c.bulletSpawn.isAutomaticSpawn =
             wantsToFire && c.aim != null && c.aim.IsAimedAt(c.targetPos, aimTolerance);

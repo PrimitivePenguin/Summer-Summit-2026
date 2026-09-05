@@ -923,7 +923,7 @@ GameObject:
   - component: {fileID: 316999112}
   - component: {fileID: 316999111}
   - component: {fileID: 316999110}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: EnemyV2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1139,8 +1139,11 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 8
+  enforceTopDownPhysics: 1
   patrolRoute: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
   waypointGiveUpTime: 4
+  progressEpsilon: 0.05
+  facePatrolDirection: 1
   aimController: {fileID: 0}
   searchSweepAngle: 50
   searchSweepSpeed: 2
@@ -1170,6 +1173,7 @@ MonoBehaviour:
   awarenessDecayRate: 0.5
   drawLastKnown: 1
   drawRanges: 1
+  drawFacingCross: 0
 --- !u!114 &316999116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1185,6 +1189,7 @@ MonoBehaviour:
   behavior: {fileID: 11400000, guid: 121e6653d4e532c4daddb8cf533e3bd0, type: 2}
   bulletSpawn: {fileID: 1386029374}
   aimController: {fileID: 0}
+  levelManager: {fileID: 0}
   investigateArriveRadius: 0.6
   investigateTimeout: 8
   deathEffectPrefab: {fileID: 0}
@@ -1202,6 +1207,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
   maxHp: 0
+  logDamage: 0
 --- !u!1 &320956527
 GameObject:
   m_ObjectHideFlags: 0
@@ -2082,7 +2088,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.7225823, y: 2.13373, z: -10}
+  m_LocalPosition: {x: 5.590335, y: 2.14622, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2842,6 +2848,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
   maxHp: 20
+  logDamage: 0
 --- !u!1 &664988131
 GameObject:
   m_ObjectHideFlags: 0
@@ -13064,7 +13071,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1386029373}
   - component: {fileID: 1386029374}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BulletSpawner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -13335,7 +13342,7 @@ GameObject:
   - component: {fileID: 1538346253}
   - component: {fileID: 1538346252}
   - component: {fileID: 1538346250}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: FOV
   m_TagString: Untagged
   m_Icon: {fileID: 0}

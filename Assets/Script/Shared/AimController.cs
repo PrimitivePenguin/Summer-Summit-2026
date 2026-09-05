@@ -1,97 +1,94 @@
 using UnityEngine;
 
+// Rotates the root transform to face a target and pushes the resulting arc into
+// BulletSpawn. Attach to Player root and Enemy root.
 
-// Returns angle between two points in degrees
-// Attack to bulletspawner
-// Call AimAt() at target
+
 public class AimController : MonoBehaviour
 {
     [Header("Turn")]
     public bool isTurnRate = true;
-    public float turnRate; // degrees per second
+    public float turnRate = 180f;   // degrees per second
+
     private float currentAngle;
-    // cached AimAt to not call it every frame
-    FieldOfView fov;
-    BulletSpawn bulletSpawn;
+    private Rigidbody2D rb;
+    private BulletSpawn bulletSpawn;
+
+    // INPUT:  none
+    // OUTPUT: current facing angle (degrees, "up = 0" convention)
+    // USE:    EnemyMovement.StartSearching, IsAimedAt
     public float GetFacingAngle() => currentAngle;
 
-    // called by EnemyController.cs with target position, requires EnemyData -> implement later
-    // public void Initialize(float turnRate)
-    // {
-    //     this.turnRate = isTurnRate ? turnRate : Mathf.Infinity; // if turnRate is 0, set to infinity
-    // }
-    // Awake() replaces Initialize
+    // INPUT:  none
+    // OUTPUT: caches refs, reads initial angle, applies turnRate mode, normalises rotation
+    // USE:    REPLACES old Awake (adds rb cache + SnapTo)
     void Awake()
     {
-        currentAngle = transform.eulerAngles.z;
-        turnRate = isTurnRate ? turnRate : Mathf.Infinity; // if turnRate is 0, set to infinity
-
-        // cache child
-        fov = GetComponentInChildren<FieldOfView>();
+        rb = GetComponent<Rigidbody2D>();
         bulletSpawn = GetComponentInChildren<BulletSpawn>();
+
+        currentAngle = transform.eulerAngles.z;
+        if (!isTurnRate) turnRate = Mathf.Infinity;
+
+        SnapTo(currentAngle);   // strips any stray X/Y rotation baked into the prefab
     }
 
-
-    // Raw angle calc
+    // INPUT:  world position
+    // OUTPUT: angle (degrees) to face it, with the -90 Vector2.up offset Bullet.cs expects
+    // USE:    AimAt, IsAimedAt, Player firing arc
     public float GetAngleTo(Vector2 targetPos)
     {
         Vector2 direction = targetPos - (Vector2)transform.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg -90f; // bullet.cs uses translate up -> 90 deg mismatch
-        return angle;
+        return Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
     }
 
-    // Set rotation cone from targetPos in center of the cone, with angle from bulletSpawnData
-    public void AimAt(Vector2 targetPos)
-    {
-        float targetAngle = GetAngleTo(targetPos);
-        // change current angle by time * tunrate based on current + target angle
-        // rotate object to face target position
-        if (!isTurnRate){
-            currentAngle = targetAngle;
-        }
-        else if (Time.deltaTime > 0f){
-            currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnRate * Time.deltaTime);
-        }
-        if (float.IsNaN(currentAngle)){
-            currentAngle = targetAngle;
-        }
-        transform.rotation = Quaternion.Euler(0, 0, currentAngle);
+    // INPUT:  world position
+    // OUTPUT: rotates toward it (turn-rate limited), updates firing arc
+    // USE:    every frame by behaviors/Player. REPLACES old AimAt (no duplicated body)
+    public void AimAt(Vector2 targetPos) => AimAtAngle(GetAngleTo(targetPos));
 
-        if (bulletSpawn != null){
-            float halfAngle = bulletSpawn.GetCurrentData().spreadAngle / 2f;
-            bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
-        }
-    }
-
+    // INPUT:  target angle in degrees
+    // OUTPUT: rotates toward it (turn-rate limited), updates firing arc
+    // USE:    Search sweep, AimAt
     public void AimAtAngle(float targetAngle)
     {
-        // change current angle by time * tunrate based on current + target angle
-        // rotate object to face target position
-        if (!isTurnRate){
+        if (!isTurnRate || float.IsInfinity(turnRate))
             currentAngle = targetAngle;
-        }
-        else if (Time.deltaTime > 0f){
+        else if (Time.deltaTime > 0f)
             currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnRate * Time.deltaTime);
-        }
-        if (float.IsNaN(currentAngle)){
-            currentAngle = targetAngle;
-        }
-        transform.rotation = Quaternion.Euler(0, 0, currentAngle);
 
-        if (bulletSpawn != null){
-            float halfAngle = bulletSpawn.GetCurrentData().spreadAngle / 2f;
-            bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
-        }
+        if (float.IsNaN(currentAngle)) currentAngle = targetAngle;
+
+        ApplyRotation();
     }
-    // aim to snap
+
+    // INPUT:  angle in degrees
+    // OUTPUT: instantly sets facing
+    // USE:    spawn, teleport, Awake normalisation
     public void SnapTo(float angle)
     {
         currentAngle = angle;
-        transform.rotation = Quaternion.Euler(0, 0, currentAngle); 
+        ApplyRotation();
     }
+
+    // INPUT:  target position, tolerance in degrees
+    // OUTPUT: true if facing within tolerance
+    // USE:    ArchetypeBehavior.SetFiring gate
     public bool IsAimedAt(Vector2 targetPos, float tolerance = 5f)
+        => Mathf.Abs(Mathf.DeltaAngle(currentAngle, GetAngleTo(targetPos))) < tolerance;
+
+    // INPUT:  currentAngle
+    // OUTPUT: writes transform + rigidbody rotation, pushes spread arc to BulletSpawn
+    // USE:    single funnel for every rotation write
+    private void ApplyRotation()
     {
-        float targetAngle = GetAngleTo(targetPos);
-        return Mathf.Abs(Mathf.DeltaAngle(currentAngle, targetAngle)) < tolerance;
+        transform.rotation = Quaternion.Euler(0f, 0f, currentAngle);
+        if (rb != null) rb.rotation = currentAngle;
+
+        if (bulletSpawn != null)
+        {
+            float halfAngle = bulletSpawn.GetCurrentData().spreadAngle * 0.5f;
+            bulletSpawn.SetFiringArc(currentAngle - halfAngle, currentAngle + halfAngle);
+        }
     }
 }

@@ -6,24 +6,40 @@ public class Damageable : MonoBehaviour
     public int maxHp;
     int currentHp;
 
-    // invincibility
-    public bool isInvulnerable {get; set;}
+    public bool isInvulnerable { get; set; }
+    public bool IsDead { get; private set; }
+
     public event Action OnDeath;
-    public event Action<int> OnDamaged; // passes damage amount
+    public event Action<int> OnDamaged;
 
-    void Start()
-    {
-        currentHp = maxHp;
-    }
+    [Header("Debug")]
+    [SerializeField] private bool logDamage = false;
 
+    // INPUT:  maxHp
+    // OUTPUT: currentHp = maxHp
+    // USE:    Unity
+    void Start() => currentHp = maxHp;
+
+    // INPUT:  raw damage
+    // OUTPUT: reduces HP, raises OnDamaged; raises OnDeath ONCE when HP hits 0
+    // USE:    Bullet.OnTriggerEnter2D. REPLACES old TakeDamage (death latch)
     public void TakeDamage(int amount)
     {
-        if (isInvulnerable) return;
+        if (isInvulnerable || IsDead) return;
+
         currentHp -= amount;
         OnDamaged?.Invoke(amount);
-        Debug.Log($"{gameObject.name} took {amount} damage. HP: {currentHp}/{maxHp}");
+        if (logDamage) Debug.Log($"{gameObject.name} took {amount} damage. HP: {currentHp}/{maxHp}");
 
         if (currentHp <= 0)
+        {
+            IsDead = true;
             OnDeath?.Invoke();
+        }
     }
+
+    // INPUT:  none
+    // OUTPUT: current HP
+    // USE:    health bars, AI retreat logic
+    public int GetHp() => currentHp;
 }

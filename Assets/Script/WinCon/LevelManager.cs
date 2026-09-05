@@ -9,6 +9,8 @@ public enum WinConditionType
     ReachFlag
 }
 
+// Win/loss tracking for one level. Declared PARTIAL so future systems live in
+// their own files (see LevelManager.Future.cs) without touching this one.
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
@@ -32,6 +34,9 @@ public class LevelManager : MonoBehaviour
     private int enemyCount = 0;
     private Damageable playerDamageable;
 
+    // INPUT:  none
+    // OUTPUT: singleton assignment
+    // USE:    Unity
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -57,6 +62,8 @@ public class LevelManager : MonoBehaviour
 
         // Notify UI of initial enemy count once everyone has registered
         OnEnemiesRemainingChanged?.Invoke(enemyCount);
+
+        OnLevelStarted();   // stub below — fill in LevelManager.Future.cs
     }
 
     private void Update()
@@ -86,12 +93,18 @@ public class LevelManager : MonoBehaviour
 
     // --- ENEMY TRACKING METHODS ---
 
+    // INPUT:  none
+    // OUTPUT: enemyCount + 1, UI event
+    // USE:    EnemyController.Start
     public void RegisterEnemy()
     {
         enemyCount++;
         OnEnemiesRemainingChanged?.Invoke(enemyCount);
     }
 
+    // INPUT:  none
+    // OUTPUT: enemyCount - 1, UI event, victory if EliminateAll hits 0
+    // USE:    EnemyController.HandleDeath (now guaranteed once per enemy by Damageable)
     public void UnregisterEnemy()
     {
         if (IsLevelEnded) return;
@@ -107,6 +120,9 @@ public class LevelManager : MonoBehaviour
 
     // --- WIN / LOSS TRIGGERS ---
 
+    // INPUT:  none
+    // OUTPUT: latches IsLevelEnded, raises OnLevelWon
+    // USE:    all win paths
     public void TriggerVictory()
     {
         if (IsLevelEnded) return;
@@ -114,6 +130,7 @@ public class LevelManager : MonoBehaviour
 
         Debug.Log($"<color=green>[LevelManager] VICTORY! Win condition achieved: {winCondition}</color>");
         OnLevelWon?.Invoke(winCondition);
+        OnLevelEnded(true);   // future-hook slot
     }
 
     private void HandlePlayerDeath()
@@ -123,5 +140,21 @@ public class LevelManager : MonoBehaviour
 
         Debug.Log("<color=red>[LevelManager] DEFEAT! Player was destroyed.</color>");
         OnLevelLost?.Invoke();
+        OnLevelEnded(false);  // stub below
     }
+
+    // ── Future expansion hooks ────────────────────────────────────────────────
+    // Stubs live here so LevelManager.cs compiles alone. Override behaviour in
+    // LevelManager.Future.cs by adding public methods and wiring them to your
+    // systems from outside — do not add private calls there.
+
+    // INPUT:  none
+    // OUTPUT: none — called once at the end of Start
+    // USE:    difficulty setup, spawn waves, etc.
+    private void OnLevelStarted() { /* TODO */ }
+
+    // INPUT:  won = true on victory, false on defeat
+    // OUTPUT: none — called from TriggerVictory / HandlePlayerDeath
+    // USE:    level unlock persistence, scene transition, analytics
+    private void OnLevelEnded(bool won) { /* TODO */ }
 }

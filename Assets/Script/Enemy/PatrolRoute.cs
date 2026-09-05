@@ -1,54 +1,53 @@
 using UnityEngine;
 
-/// <summary>
-/// Stores a list of world-space patrol waypoints on this GameObject.
-/// Points are plain Vector3 positions — no child GameObjects needed.
-/// 
-/// HOW TO SET UP:
-///   1. Create empty GameObject in scene → name it "PatrolRoute"
-///   2. Add this component
-///   3. Select it and Shift+Click in scene view to place waypoints
-///   4. Drag from Hierarchy into Assets/Prefabs/ → prefab created
-///   5. Drag the scene instance into Enemy's EnemyMovement → "Patrol Route" slot
-/// 
-/// HOW TO USE PER-ENEMY:
-///   One PatrolRoute per enemy: each enemy gets its own instance in the scene.
-///   Shared route: drag the same PatrolRoute into multiple enemies' slots.
-/// </summary>
+// Stores world-space patrol waypoints (as local offsets) on this GameObject.
+
 [System.Serializable]
 public class PatrolWayPoint
 {
     public string name = "Waypoint";
-
-    public Vector3 localPosition;   // LOCAL to the PatrolRoute transform — enables prefab reuse
-    public float radius = 0f;       // 0 = exact point, >0 = sample anywhere in the circle
+    public Vector3 localPosition;   // LOCAL to the PatrolRoute transform
+    public float radius = 0f;       // 0 = exact point, >0 = sample inside circle
 }
+
 public class PatrolRoute : MonoBehaviour
 {
     [Header("Waypoints")]
     [SerializeField] public PatrolWayPoint[] waypoints = new PatrolWayPoint[0];
 
     [Header("Map Bounds (optional)")]
-    [Tooltip("Sampled points are kept inside this collider. Leave null to skip the check.")]
     [SerializeField] private PolygonCollider2D mapBounds;
     [SerializeField] private int maxSampleAttempts = 8;
 
     [Header("Visualization")]
     [SerializeField] private bool toggleVisualization = true;
     [SerializeField] private Color routeColor = Color.cyan;
-    [SerializeField] private float waypointRadius = 0.2f;   // gizmo dot size, NOT the sample radius
+    [SerializeField] private float waypointRadius = 0.2f;
     [SerializeField] private bool showLabels = true;
 
-    public int WaypointCount => waypoints != null ? (waypoints.Length + 1) : 0;
+    // INPUT:  none
+    // OUTPUT: number of REAL waypoints — valid indices are 0 .. WaypointCount-1
+    // USE:    every loop and modulo in EnemyMovement. (REPLACES: waypoints.Length + 1)
+    public int WaypointCount => waypoints != null ? waypoints.Length : 0;
 
-    // Applies transform.TransformPoint so moving the PatrolRoute object moves every point
-    public Vector3 GetCenter(int i) => transform.TransformPoint(waypoints[i].localPosition);
+    // INPUT:  waypoint index
+    // OUTPUT: true if index addresses a real waypoint
+    // USE:    guard before GetCenter / SampleWaypoint
+    public bool IsValidIndex(int i) => waypoints != null && i >= 0 && i < waypoints.Length;
 
-    // INPUT: waypoint index, mapBounds, maxSampleAttempts
-    // OUTPUT: world position of the waypoint, sampled inside radius if >0 and inside mapBounds else ret center
+    // INPUT:  waypoint index
+    // OUTPUT: world-space centre of that waypoint (transform.position if index invalid)
+    // USE:    ResumePatrolFromNearest, gizmos, editor handles. (REPLACES: unguarded indexer)
+    public Vector3 GetCenter(int i) =>
+        IsValidIndex(i) ? transform.TransformPoint(waypoints[i].localPosition) : transform.position;
+
+    // INPUT:  waypoint index
+    // OUTPUT: world position inside that waypoint's radius (and inside mapBounds if set),
+    //         or the centre if radius is 0 / all samples fell outside the map
+    // USE:    SetPatrolTarget — the actual point the enemy walks to
     public Vector3 SampleWaypoint(int i)
     {
-        if (waypoints == null || i < 0 || i >= waypoints.Length) return transform.position;
+        if (!IsValidIndex(i)) return transform.position;
 
         Vector3 center = GetCenter(i);
         float r = waypoints[i].radius;
@@ -60,20 +59,20 @@ public class PatrolRoute : MonoBehaviour
             if (mapBounds == null || mapBounds.OverlapPoint(candidate))
                 return candidate;
         }
-
-        // Every sample landed outside the map — fall back to the center
         return center;
     }
 
-    public string GetName(int i) =>
-        (waypoints != null && i >= 0 && i < waypoints.Length) ? waypoints[i].name : "";
+    // INPUT:  waypoint index
+    // OUTPUT: designer-facing name, or "" if invalid
+    // USE:    debug labels
+    public string GetName(int i) => IsValidIndex(i) ? waypoints[i].name : "";
 
-    // Toggleable
-
+    // INPUT:  none
+    // OUTPUT: none — Scene view only
+    // USE:    draws points, sample circles, route lines, index labels
     void OnDrawGizmos()
     {
-        if (!toggleVisualization) return;
-        if (waypoints == null || waypoints.Length == 0) return;
+        if (!toggleVisualization || waypoints == null || waypoints.Length == 0) return;
 
         for (int i = 0; i < waypoints.Length; i++)
         {
@@ -83,7 +82,6 @@ public class PatrolRoute : MonoBehaviour
             Gizmos.color = routeColor;
             Gizmos.DrawSphere(point, waypointRadius);
 
-            // Wire circle showing the sample area for this waypoint
             if (waypoints[i].radius > 0f)
             {
                 Gizmos.color = new Color(routeColor.r, routeColor.g, routeColor.b, 0.35f);
@@ -93,11 +91,11 @@ public class PatrolRoute : MonoBehaviour
             Gizmos.color = new Color(routeColor.r, routeColor.g, routeColor.b, 0.5f);
             Gizmos.DrawLine(point, next);
 
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (showLabels)
                 UnityEditor.Handles.Label(point + Vector3.up * 0.4f, $"  {i}: {waypoints[i].name}",
                     new GUIStyle { normal = { textColor = routeColor }, fontStyle = FontStyle.Bold });
-    #endif
+#endif
         }
     }
 }

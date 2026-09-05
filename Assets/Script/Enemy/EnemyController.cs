@@ -1,40 +1,32 @@
 using UnityEngine;
 
-// The five behavioural states. If EnemyEnums.cs already declares an EnemyState,
-// DELETE ONE OF THEM — C# will not compile two enums with the same name in the
-// same assembly.
 public enum EnemyState
 {
-    Idle,        // player outside load range and no awareness — do nothing at all
-    Patrol,      // awareness zero, player is loaded — route or guard-wander
-    Engage,      // direct line of sight right now
-    Investigate, // lost sight, awareness above zero — head for the last known position
-    Search       // arrived at the last known position — sweep in place
+    Idle,        // player outside load range, no awareness
+    Patrol,      // awareness zero, player loaded — route or guard-wander
+    Engage,      // live contact (cone or proximity sense)
+    Investigate, // lost contact, awareness > 0 — head for last known position
+    Search       // arrived at last known position — sweep in place
 }
 
-// Decides WHICH state the enemy is in. Never decides HOW to execute it — that is
-// delegated to the assigned ArchetypeBehavior asset.
-//
-// INPUT:  EnemyVision (canSeePlayer, awareness, lastKnownPosition, IsPlayerInLoadRange)
-// OUTPUT: state transitions, then one behavior call per frame
-//
-// TO ADD A BEHAVIOUR: write a new ArchetypeBehavior subclass and make an asset.
-// This file does not change.
-// TO ADD A STATE: one enum entry, one case in EvaluateTransitions, one case in the
-// Update switch, and optionally an enter/exit hook in SetState.
+// Decides state the enemy is in. HOW it executes is the ArchetypeBehavior's job.
+
+
 public class EnemyController : MonoBehaviour
 {
     [Header("Behavior")]
-    [SerializeField] private ArchetypeBehavior behavior;   // drag a Chaser/Skirmisher/Defender asset
+    [SerializeField] private ArchetypeBehavior behavior;
 
     [Header("Components")]
     [SerializeField] private BulletSpawn bulletSpawn;
     [SerializeField] private AimController aimController;
 
+    [Header("Level Manager (optional override — leave null to use LevelManager.Instance)")]
+    [SerializeField] private LevelManager levelManager;
+
     [Header("Investigation")]
     [SerializeField] private float investigateArriveRadius = 0.6f;
-    [SerializeField] private float investigateTimeout = 8f;   // defenders never "arrive" — this
-                                                              // is what moves them on to Search
+    [SerializeField] private float investigateTimeout = 8f;
 
     [Header("Death")]
     [SerializeField] private GameObject deathEffectPrefab;
@@ -52,61 +44,51 @@ public class EnemyController : MonoBehaviour
     private EnemyContext ctx;
 
     // INPUT:  none
-    // OUTPUT: current state — for debug HUDs and gizmos
+    // OUTPUT: current state
+    // USE:    debug HUDs, gizmos
     public EnemyState CurrentState => state;
+
+    // INPUT:  levelManager slot, singleton
+    // OUTPUT: whichever LevelManager applies to this enemy (may be null)
+    // USE:    every LevelManager call in this file
+    private LevelManager Level => levelManager != null ? levelManager : LevelManager.Instance;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     // INPUT:  none
-    // OUTPUT: caches Damageable and subscribes HandleDeath
+    // OUTPUT: caches Damageable, subscribes HandleDeath
+    // USE:    Unity
     void Awake()
     {
         damageable = GetComponent<Damageable>();
-        if (damageable != null)
-            damageable.OnDeath += HandleDeath;
-        else
-            Debug.LogWarning($"[EnemyController] No Damageable on {name}");
+        if (damageable != null) damageable.OnDeath += HandleDeath;
+        else Debug.LogWarning($"[EnemyController] No Damageable on {name}");
     }
 
     // INPUT:  none
-    // OUTPUT: unsubscribes the death handler
-    // USE:    prevents a dangling delegate when the enemy is destroyed
+    // OUTPUT: unsubscribes death handler
+    // USE:    Unity
     void OnDestroy()
     {
-        if (damageable != null)
-            damageable.OnDeath -= HandleDeath;
+        if (damageable != null) damageable.OnDeath -= HandleDeath;
     }
 
-    // INPUT:  inspector refs, scene tag "Player"
-    // OUTPUT: resolves components, registers with LevelManager, builds the EnemyContext
-    // USE:    the context is built ONCE per enemy — behavior assets are shared and
-    //         must not hold per-enemy state
+    // INPUT:  inspector refs, "Player" tag
+    // OUTPUT: resolves components, registers with LevelManager, builds EnemyContext
+    // USE:    Unity. REPLACES old Start (uses Level accessor)
     void Start()
     {
-        if (LevelManager.Instance != null)
-            LevelManager.Instance.RegisterEnemy();
+        Level?.RegisterEnemy();
 
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
-
-        // AimController MUST be on the root. On a child, rotation never propagates to
-        // sibling components, so the FOV cone and bullet spawn point diverge.
         if (aimController == null) aimController = GetComponent<AimController>();
-        if (aimController == null)
-            Debug.LogError($"[EnemyController] AimController must be on the ROOT of {name}");
+        if (aimController == null) Debug.LogError($"[EnemyController] AimController must be on the ROOT of {name}");
 
         vision = GetComponent<EnemyVision>();
         movement = GetComponent<EnemyMovement>();
 
-        if (vision == null)
-        {
-            Debug.LogError($"[EnemyController] EnemyVision not found on {name} — is it on the root?");
-            return;
-        }
-        if (behavior == null)
-        {
-            Debug.LogError($"[EnemyController] No ArchetypeBehavior assigned to {name}");
-            return;
-        }
+        if (vision == null)   { Debug.LogError($"[EnemyController] EnemyVision missing on {name}"); return; }
+        if (behavior == null) { Debug.LogError($"[EnemyController] No ArchetypeBehavior on {name}"); return; }
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) playerTransform = player.transform;
@@ -127,8 +109,8 @@ public class EnemyController : MonoBehaviour
     // ── Frame loop ────────────────────────────────────────────────────────────
 
     // INPUT:  vision state
-    // OUTPUT: evaluates transitions, refreshes the context, dispatches to the behavior
-    // USE:    exactly one behavior call per frame — no nested archetype branching here
+    // OUTPUT: transitions, refreshed context, one behavior call
+    // USE:    Unity. REPLACES old Update (targetPos guard)
     void Update()
     {
         if (playerTransform == null || behavior == null || vision == null || ctx == null) return;
@@ -138,29 +120,27 @@ public class EnemyController : MonoBehaviour
 
         EvaluateTransitions();
 
-        // Engage tracks the live player; every other state works off the remembered fix.
-        ctx.targetPos = (state == EnemyState.Engage)
-            ? (Vector2)playerTransform.position
-            : vision.lastKnownPosition;
+        if (state == EnemyState.Engage)      ctx.targetPos = playerTransform.position;
+        else if (vision.hasLastKnown)         ctx.targetPos = vision.lastKnownPosition;
+        else                                  ctx.targetPos = transform.position;
         ctx.distToTarget = Vector2.Distance(transform.position, ctx.targetPos);
 
         switch (state)
         {
-            case EnemyState.Idle: movement.Stop(); break;
-            case EnemyState.Patrol: behavior.Idle(ctx); break;
-            case EnemyState.Engage: behavior.Engage(ctx); break;
+            case EnemyState.Idle:        movement.Stop();          break;
+            case EnemyState.Patrol:      behavior.Idle(ctx);       break;
+            case EnemyState.Engage:      behavior.Engage(ctx);     break;
             case EnemyState.Investigate: behavior.Investigate(ctx); break;
-            case EnemyState.Search: behavior.Search(ctx); break;
+            case EnemyState.Search:      behavior.Search(ctx);     break;
         }
     }
 
-    // INPUT:  vision.canSeePlayer, vision.awareness, vision.IsPlayerInLoadRange, stateTimer
+    // INPUT:  vision.hasContact, awareness, load range, stateTimer
     // OUTPUT: may call SetState
-    // USE:    pure transition logic — no archetype knowledge, no movement calls
+    // USE:    pure transition logic. REPLACES old EvaluateTransitions (hasContact)
     private void EvaluateTransitions()
     {
-        // Direct sight outranks everything, from any state.
-        if (vision.canSeePlayer) { SetState(EnemyState.Engage); return; }
+        if (vision.hasContact) { SetState(EnemyState.Engage); return; }
 
         switch (state)
         {
@@ -174,34 +154,29 @@ public class EnemyController : MonoBehaviour
                 break;
 
             case EnemyState.Engage:
-                SetState(EnemyState.Investigate);   // sight broke this frame
+                SetState(EnemyState.Investigate);
                 break;
 
             case EnemyState.Investigate:
-                // Arrived, or ran out of patience. Defenders never arrive, so the
-                // timeout is what advances them.
-                if (movement.IsInRange(vision.lastKnownPosition, investigateArriveRadius)
-                    || stateTimer <= 0f)
+                if (movement.IsInRange(vision.lastKnownPosition, investigateArriveRadius) || stateTimer <= 0f)
                     SetState(EnemyState.Search);
                 break;
 
             case EnemyState.Search:
-                // Search() clears IsSearching when its duration expires.
                 if (vision.awareness <= 0f || !movement.IsSearching())
                     SetState(EnemyState.Patrol);
                 break;
         }
     }
 
-    // INPUT:  target state
-    // OUTPUT: runs exit hooks, swaps state, runs enter hooks
-    // USE:    the ONLY place side effects fire on a state change. StartSearching is
-    //         called exactly once per Search entry (calling it per frame would reset
-    //         the sweep forever), and ResumePatrolFromNearest only on entering Patrol.
+    // INPUT:  next state
+    // OUTPUT: exit hooks, state swap, enter hooks
+    // USE:    the ONLY place state-change side effects live. REPLACES old SetState (log gated)
     private void SetState(EnemyState next)
     {
         if (next == state) return;
-        Debug.Log($"[{name}] state: {state} → {next}");
+        if (logTransitions) Debug.Log($"[EnemyController] {name}: {state} → {next}");
+
         // EXIT
         if (state == EnemyState.Search) movement.StopSearching();
 
@@ -211,31 +186,27 @@ public class EnemyController : MonoBehaviour
         // ENTER
         switch (next)
         {
-            case EnemyState.Search: movement.StartSearching(); break;
-            case EnemyState.Patrol: 
-                vision.ForgetLastKnown();       
+            case EnemyState.Search:      movement.StartSearching(); break;
+            case EnemyState.Patrol:
+                vision.ForgetLastKnown();
                 movement.ResumePatrolFromNearest();
                 break;
-
             case EnemyState.Investigate: stateTimer = investigateTimeout; break;
-            case EnemyState.Idle: movement.Stop(); break;
+            case EnemyState.Idle:        movement.Stop(); break;
         }
 
-        // Hard safety: nothing outside Engage may leave the trigger held down.
         if (bulletSpawn != null && next != EnemyState.Engage)
             bulletSpawn.isAutomaticSpawn = false;
-
-        if (logTransitions) Debug.Log($"[EnemyController] {name} → {next}");
     }
 
     // ── Death ─────────────────────────────────────────────────────────────────
 
-    // INPUT:  none (raised by Damageable.OnDeath)
-    // OUTPUT: decrements the LevelManager count, spawns the death effect, destroys self
+    // INPUT:  none (Damageable.OnDeath — fires once now)
+    // OUTPUT: unregisters, spawns effect, destroys self
+    // USE:    event handler
     private void HandleDeath()
     {
-        if (LevelManager.Instance != null)
-            LevelManager.Instance.UnregisterEnemy();
+        Level?.UnregisterEnemy();
 
         if (deathEffectPrefab != null)
             Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
@@ -246,16 +217,14 @@ public class EnemyController : MonoBehaviour
     // ── Debug ─────────────────────────────────────────────────────────────────
 
     // INPUT:  behavior, anchor
-    // OUTPUT: draws the Defender leash and the current state label
-    // USE:    Scene view, selected object only
+    // OUTPUT: Defender leash gizmo
+    // USE:    Scene view, selected only
     private void OnDrawGizmosSelected()
     {
         if (behavior is DefenderBehavior def)
         {
             Gizmos.color = Color.cyan;
-            Vector3 centre = (Application.isPlaying && ctx != null)
-                ? (Vector3)ctx.anchor
-                : transform.position;
+            Vector3 centre = (Application.isPlaying && ctx != null) ? (Vector3)ctx.anchor : transform.position;
             Gizmos.DrawWireSphere(centre, def.GetDefenseRadius());
         }
     }

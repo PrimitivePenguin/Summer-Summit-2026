@@ -1,70 +1,69 @@
 using UnityEngine;
 
-// Detection only. Purely an information source — issues no commands and knows
-// nothing about states. FieldOfView.cs draws the cone; this decides what is seen.
+// Detection only. Issues no commands, knows nothing about states.
 //
-// Three concentric rings:
-//   loadDistance  — outermost gate. Beyond it the enemy can go fully idle.
-//   viewDistance  — the real cone: direction + line of sight required.
-//   senseDistance — omnidirectional "something is right behind me", LOS still required.
+//   loadDistance  — outermost gate; beyond it the enemy idles.
+//   viewDistance  — the real cone: direction + LOS.
+//   senseDistance — omnidirectional proximity, LOS still required.
 //
-// OUTPUT: canSeePlayer, awareness, lastKnownPosition, hasLastKnown
+
 public class EnemyVision : MonoBehaviour
 {
     [Header("Cone + LOS")]
-    [SerializeField] LayerMask wallLayer;                 // layers that block sight
-    [SerializeField] public float viewDistance = 8f;      // cone reach — FieldOfView reads this
-    [SerializeField] public float fovAngle = 90f;         // cone width — FieldOfView reads this
+    [SerializeField] LayerMask wallLayer;
+    [SerializeField] public float viewDistance = 8f;   // FieldOfView reads this
+    [SerializeField] public float fovAngle = 90f;      // FieldOfView reads this
 
     [Header("Proximity Ranges")]
-    [SerializeField] float senseDistance = 4f;            // omnidirectional, no cone
-    [SerializeField] float loadDistance = 15f;            // outermost idle gate
+    [SerializeField] float senseDistance = 4f;
+    [SerializeField] float loadDistance = 15f;
 
     [Header("Awareness")]
-    [SerializeField] float awarenessDecayRate = 0.5f;     // lost per second once contact breaks
+    [SerializeField] float awarenessDecayRate = 0.5f;
 
     [Header("Debug")]
     [SerializeField] bool drawLastKnown = true;
     [SerializeField] bool drawRanges = false;
+    [SerializeField] bool drawFacingCross = false;
 
-    // ── Read-only state; EnemyController reads these ──────────────────────────
-
-    public bool canSeePlayer { get; private set; }          // cone + LOS satisfied this frame
-    public float awareness { get; private set; }            // 1 = fresh contact, decays to 0
-    public Vector2 lastKnownPosition { get; private set; }  // most recent fix on the player
-    public bool hasLastKnown { get; private set; }          // false until the FIRST sighting
+    // ── Read-only state ───────────────────────────────────────────────────────
+    public bool canSeePlayer { get; private set; }          // cone + LOS this frame
+    public bool sensedPlayer { get; private set; }          // proximity + LOS this frame
+    public bool hasContact => canSeePlayer || sensedPlayer; // any live fix on the player
+    public float awareness { get; private set; }
+    public Vector2 lastKnownPosition { get; private set; }
+    public bool hasLastKnown { get; private set; }
 
     Transform player;
     AimController aimController;
 
-    // INPUT:  player transform, aimController
-    // OUTPUT: stores both; auto-fills wallLayer if left at zero
-    // USE:    called once by EnemyController.Start
+    // INPUT:  player transform, aim controller
+    // OUTPUT: stores refs, defaults wallLayer
+    // USE:    once from EnemyController.Start
     public void Initialize(Transform player, AimController aimController)
     {
         this.player = player;
         this.aimController = aimController;
-
-        if (wallLayer == 0)
-            wallLayer = LayerMask.GetMask("Collision");
+        if (wallLayer == 0) wallLayer = LayerMask.GetMask("Collision");
     }
 
-    // INPUT:  player position, awarenessDecayRate
-    // OUTPUT: updates canSeePlayer, awareness, lastKnownPosition, hasLastKnown
-    // USE:    called every frame by EnemyController before any transition logic
-    // NOTE:   hasLastKnown exists because (0,0) is a perfectly valid world position.
-    //         Without the flag, an enemy that had never seen the player would happily
-    //         path to world origin.
+    // INPUT:  player position, decay rate
+    // OUTPUT: canSeePlayer, sensedPlayer, awareness, lastKnownPosition, hasLastKnown
+    // USE:    every frame, before transition logic. REPLACES old Tick
     public void Tick()
     {
         if (player == null) return;
 
         canSeePlayer = CheckPlayerVisible();
-        Debug.DrawLine(transform.position + Vector3.left * 0.4f, transform.position + Vector3.right * 0.4f, Color.black);
-        Debug.DrawLine(transform.position + Vector3.down * 0.4f, transform.position + Vector3.up * 0.4f, Color.black);
+        sensedPlayer = CheckPlayerSensed();
 
+        if (drawFacingCross)
+        {
+            Debug.DrawLine(transform.position + Vector3.left * 0.4f, transform.position + Vector3.right * 0.4f, Color.black);
+            Debug.DrawLine(transform.position + Vector3.down * 0.4f, transform.position + Vector3.up * 0.4f, Color.black);
+        }
 
-        if (canSeePlayer || IsPlayerInSenseRange())
+        if (hasContact)
         {
             awareness = 1f;
             lastKnownPosition = player.position;
@@ -77,9 +76,8 @@ public class EnemyVision : MonoBehaviour
     }
 
     // INPUT:  none
-    // OUTPUT: clears awareness, the remembered fix, and its validity flag
-    // USE:    called by EnemyController on entering Patrol — the enemy has finished
-    //         searching and genuinely given up
+    // OUTPUT: awareness 0, hasLastKnown false
+    // USE:    on entering Patrol — the enemy has given up
     public void ForgetLastKnown()
     {
         awareness = 0f;
@@ -87,62 +85,45 @@ public class EnemyVision : MonoBehaviour
     }
 
     // INPUT:  player position, viewDistance, fovAngle, wallLayer
-    // OUTPUT: true only if inside the cone AND unobstructed
-    // USE:    distance reject → angle reject → linecast, cheapest test first
+    // OUTPUT: true if in cone AND unobstructed
+    // USE:    Tick. Distance → angle → linecast, cheapest first
     bool CheckPlayerVisible()
     {
-        if (player == null) return false;
-
         Vector2 self = transform.position;
-        Vector2 target = player.position;
-        Vector2 toPlayer = target - self;
+        Vector2 toPlayer = (Vector2)player.position - self;
 
-        // 1. Distance
         if (toPlayer.sqrMagnitude > viewDistance * viewDistance) return false;
-
-        // 2. Cone. Uses transform.up directly rather than an angle from AimController,
-        //    which makes it immune to degree-offset mismatches between the two.
-        //    Switch to transform.right if your sprite faces RIGHT at zero rotation.
         if (Vector2.Angle(transform.up, toPlayer) > fovAngle * 0.5f) return false;
 
-        // 3. Walls
-        RaycastHit2D hit = Physics2D.Linecast(self, target, wallLayer);
-        return hit.collider == null;
+        return Physics2D.Linecast(self, player.position, wallLayer).collider == null;
     }
 
     // INPUT:  player position, senseDistance, wallLayer
-    // OUTPUT: true if the player is close and unobstructed, regardless of facing
-    // USE:    stops the player sneaking up directly behind an enemy in an open room
-    // NOTE:   if the enemy's own collider sits on wallLayer, set
-    //         Physics2D.queriesStartInColliders = false or this linecast self-blocks
-    //         every frame and the enemy goes permanently blind
-    public bool IsPlayerInSenseRange()
+    // OUTPUT: true if close AND unobstructed, any direction
+    // USE:    Tick
+    bool CheckPlayerSensed()
     {
-        if (player == null) return false;
-
         Vector2 self = transform.position;
-        Vector2 target = player.position;
+        Vector2 toPlayer = (Vector2)player.position - self;
 
-        if ((target - self).sqrMagnitude > senseDistance * senseDistance) return false;
-
-        RaycastHit2D hit = Physics2D.Linecast(self, target, wallLayer);
-        return hit.collider == null;
-    }
-
-    // INPUT:  player position, loadDistance
-    // OUTPUT: true if the player is close enough for this enemy to be worth simulating
-    // USE:    EnemyController's Idle gate — distant enemies skip pathfinding entirely
-    public bool IsPlayerInLoadRange()
-    {
-        if (player == null) return false;
-        return Vector2.Distance(transform.position, player.position) < loadDistance;
+        if (toPlayer.sqrMagnitude > senseDistance * senseDistance) return false;
+        return Physics2D.Linecast(self, player.position, wallLayer).collider == null;
     }
 
     // INPUT:  none
-    // OUTPUT: none — Scene-view only
-    // USE:    the sphere is the remembered player position, red when fresh and fading
-    //         to grey as awareness decays. If the line points somewhere the player
-    //         never stood, awareness or lastKnownPosition tracking is wrong.
+    // OUTPUT: cached sense result from this frame's Tick
+    // USE:    external callers (kept for API compatibility)
+    public bool IsPlayerInSenseRange() => sensedPlayer;
+
+    // INPUT:  player position, loadDistance
+    // OUTPUT: true if worth simulating
+    // USE:    EnemyController Idle gate
+    public bool IsPlayerInLoadRange()
+        => player != null && Vector2.Distance(transform.position, player.position) < loadDistance;
+
+    // INPUT:  none
+    // OUTPUT: Scene view only
+    // USE:    remembered fix (red → grey as awareness decays), optional range rings
     private void OnDrawGizmos()
     {
         if (drawRanges)
@@ -153,11 +134,9 @@ public class EnemyVision : MonoBehaviour
             Gizmos.DrawWireSphere(transform.position, loadDistance);
         }
 
-        if (!drawLastKnown || !Application.isPlaying) return;
-        if (!hasLastKnown || awareness <= 0f) return;
+        if (!drawLastKnown || !Application.isPlaying || !hasLastKnown || awareness <= 0f) return;
 
-        Color c = Color.Lerp(new Color(0.5f, 0.5f, 0.5f, 0.4f), Color.red, awareness);
-        Gizmos.color = c;
+        Gizmos.color = Color.Lerp(new Color(0.5f, 0.5f, 0.5f, 0.4f), Color.red, awareness);
         Gizmos.DrawWireSphere(lastKnownPosition, 0.35f + 0.25f * awareness);
         Gizmos.DrawLine(transform.position, lastKnownPosition);
     }
