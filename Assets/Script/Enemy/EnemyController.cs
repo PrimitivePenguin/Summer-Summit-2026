@@ -61,6 +61,13 @@ public class EnemyController : MonoBehaviour
 
     void Start()
     {
+
+        // 1. Tell LevelManager this enemy exists (works for pre-placed or spawned enemies)
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.RegisterEnemy();
+        }
+
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
         if (aimController == null) aimController = GetComponentInChildren<AimController>();
         vision = GetComponent<EnemyVision>();
@@ -254,6 +261,12 @@ public class EnemyController : MonoBehaviour
     }
 
     private void HandleDeath(){
+        // Decrement the count when killed
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.UnregisterEnemy();
+        }
+
         if (deathEffectPrefab != null){
             Instantiate(deathEffectPrefab, transform.position, Quaternion.identity);
         }
