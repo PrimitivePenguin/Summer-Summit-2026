@@ -6,51 +6,44 @@ public class MenuController : MonoBehaviour
 {
     [Header("Panels")]
     public GameObject menuCanvas;    // Pause menu panel
-    public GameObject gameOverPage;  // Game Over panel
+    public GameObject gameOverPage;  // Game Over / Defeat panel
+    public GameObject victoryPage;   // Victory panel
     public GameObject pauseButton;   // In-game pause button
 
-    [Header("References")]
-    [SerializeField] private Damageable playerDamageable;
-
-    private bool isGameOver = false;
-
-    void Awake()
-    {
-        // Try to find the player's Damageable component if not assigned in Inspector
-        if (playerDamageable == null)
-        {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null)
-            {
-                playerDamageable = player.GetComponent<Damageable>();
-            }
-        }
-
-        if (playerDamageable != null)
-        {
-            playerDamageable.OnDeath += TriggerGameOver;
-        }
-    }
+    private bool isMatchFinished = false;
 
     void Start()
     {
         if (menuCanvas != null) menuCanvas.SetActive(false);
         if (gameOverPage != null) gameOverPage.SetActive(false);
+        if (victoryPage != null) victoryPage.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
+
+        // Subscribe to LevelManager events
+        if (LevelManager.Instance != null)
+        {
+            LevelManager.Instance.OnLevelWon += TriggerVictory;
+            LevelManager.Instance.OnLevelLost += TriggerGameOver;
+        }
+        else
+        {
+            Debug.LogWarning("[MenuController] No LevelManager found in scene!");
+        }
     }
 
     void OnDestroy()
     {
-        if (playerDamageable != null)
+        if (LevelManager.Instance != null)
         {
-            playerDamageable.OnDeath -= TriggerGameOver;
+            LevelManager.Instance.OnLevelWon -= TriggerVictory;
+            LevelManager.Instance.OnLevelLost -= TriggerGameOver;
         }
     }
 
     void Update()
     {
-        // Prevent opening the pause menu if the player is already dead
-        if (isGameOver) return;
+        // Don't allow pausing once the match has ended
+        if (isMatchFinished) return;
 
         if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
         {
@@ -67,7 +60,7 @@ public class MenuController : MonoBehaviour
 
     public void Pause()
     {
-        if (isGameOver) return;
+        if (isMatchFinished) return;
 
         menuCanvas.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
@@ -76,7 +69,7 @@ public class MenuController : MonoBehaviour
 
     public void Resume()
     {
-        if (isGameOver) return;
+        if (isMatchFinished) return;
 
         menuCanvas.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
@@ -85,32 +78,63 @@ public class MenuController : MonoBehaviour
 
     public void TriggerGameOver()
     {
-        Debug.Log("TriggerGameOver CALLED!");
-        isGameOver = true;
+        if (isMatchFinished) return;
+        isMatchFinished = true;
 
-        // Close pause menu if it was somehow open, hide pause button
-        if (menuCanvas != null) menuCanvas.SetActive(false);
-        if (pauseButton != null) pauseButton.SetActive(false);
+        CloseAllPanels();
 
-        // Show Game Over UI and freeze time
-        if (gameOverPage != null){
+        if (gameOverPage != null)
+        {
             gameOverPage.SetActive(true);
         }
-        else{
-            Debug.Log("GameOverPage doesn't exist");
+        else
+        {
+            Debug.LogWarning("[MenuController] gameOverPage reference missing!");
         }
+
         Time.timeScale = 0f;
+    }
+
+    public void TriggerVictory(WinConditionType type)
+    {
+        if (isMatchFinished) return;
+        isMatchFinished = true;
+
+        CloseAllPanels();
+
+        if (victoryPage != null)
+        {
+            victoryPage.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("[MenuController] victoryPage reference missing!");
+        }
+
+        Time.timeScale = 0f;
+    }
+
+    private void CloseAllPanels()
+    {
+        if (menuCanvas != null) menuCanvas.SetActive(false);
+        if (pauseButton != null) pauseButton.SetActive(false);
     }
 
     public void Home()
     {
-        Time.timeScale = 1f; // Critical: always restore timeScale before changing scenes!
+        Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
 
     public void Restart()
     {
-        Time.timeScale = 1f; // Critical: restore timeScale so the restarted level isn't frozen
+        Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void NextLevel(string nextSceneName)
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(nextSceneName);
     }
 }
