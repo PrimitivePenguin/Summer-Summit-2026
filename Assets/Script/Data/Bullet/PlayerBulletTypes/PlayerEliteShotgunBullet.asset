@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28b102fa913466a4e94dd6e53e63c652, type: 3}
-  m_Name: PlayerBullet
+  m_Name: PlayerEliteShotgunBullet
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawnData
   bulletResource: {fileID: 3939232322268860337, guid: c32a14fcba217ff48bb013f4656cc43c, type: 3}
-  bulletSpeed: 20
-  bulletDespawnDist: 50
+  bulletSpeed: 15
+  bulletDespawnDist: 30
   holdFire: 1
-  spreadAngle: 0
+  spreadAngle: 30
   minRotation: -196.6039
   maxRotation: -116.6039
-  numBullets: 1
-  isRandom: 1
+  numBullets: 20
+  isRandom: 0
   isParent: 0
   burstDelay: 0
   cooldown: 1
-  damage: 10
+  damage: 1
   collisionLayers:
     serializedVersion: 2
     m_Bits: 136
