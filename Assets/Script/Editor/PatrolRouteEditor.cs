@@ -170,11 +170,12 @@ public class PatrolRouteEditor : Editor
 
         newPoints[oldLen] = new PatrolWayPoint {
             name = $"Waypoint {oldLen}",
-            localPosition = route.transform.InverseTransformPoint(worldPos),  // world → local
+            localPosition = route.transform.InverseTransformPoint(worldPos),
             radius = 0f
         };
 
         route.waypoints = newPoints;
+        ReindexWaypoints(route);
     }
 
     void RemoveLast(PatrolRoute route)
@@ -184,5 +185,15 @@ public class PatrolRouteEditor : Editor
         PatrolWayPoint[] newPoints = new PatrolWayPoint[newLen];
         System.Array.Copy(route.waypoints, newPoints, newLen);
         route.waypoints = newPoints;
+        ReindexWaypoints(route);
+    }
+
+    private void ReindexWaypoints(PatrolRoute route)
+    {
+        if (route.waypoints == null) return;
+        for (int i = 0; i < route.waypoints.Length; i++)
+        {
+            route.waypoints[i].name = $"Waypoint {i}";
+        }
     }
 }
