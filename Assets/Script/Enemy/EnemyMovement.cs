@@ -151,8 +151,10 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
-        // If path is complete and we are within arrival distance of the actual target
-        if (!pathfinding.HasPath && IsInRange(currentPatrolTarget, arriveRadius))
+        float distToTarget = Vector2.Distance(transform.position, currentPatrolTarget);
+
+        // 1. Arrived at final waypoint -> advance index
+        if (distToTarget <= arriveRadius)
         {
             patrolIndex = (patrolIndex + 1) % route.WaypointCount;
             currentPatrolTarget = route.SampleWaypoint(patrolIndex);
@@ -160,14 +162,15 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
+        // 2. If path got lost or emptied early, re-calculate instead of blind-charging
+        if (!pathfinding.HasPath)
+        {
+            pathfinding.ComputePath(currentPatrolTarget);
+        }
+
+        // 3. Steer to the next path node
         Vector2 nextStep = pathfinding.GetCurrentSteeringTarget(currentPatrolTarget);
         SetDesiredToward(nextStep, patrolSpeed);
-
-        // Fallback: if path emptied out but not yet within arriveRadius, steer directly to waypoint
-        if (!pathfinding.HasPath && !IsInRange(currentPatrolTarget, arriveRadius))
-        {
-            SetDesiredToward(currentPatrolTarget, patrolSpeed);
-        }
     }
 
     // Search
@@ -218,6 +221,7 @@ public class EnemyMovement : MonoBehaviour
 
         UpdateAnimator(rb.linearVelocity);
         commandedThisFrame = false;                     // reset for next step
+
     }
 
     // INTERNAL FUNCTIONS

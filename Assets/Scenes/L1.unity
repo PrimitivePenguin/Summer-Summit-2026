@@ -1784,7 +1784,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.9123054, y: 1.06707, z: -10}
+  m_LocalPosition: {x: 5.510504, y: 2.1540298, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3444,8 +3444,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fb208489d73ce5408477672cad74570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
+  archetype: 2
   bulletSpawn: {fileID: 1454126046}
   aimController: {fileID: 0}
+  deathEffectPrefab: {fileID: 0}
+  defenseRadius: 3.5
+  preferredMinDist: 4
+  preferredMaxDist: 7
+  strafeClockwise: 1
+  strafeSwitchInterval: 2.5
+  attackRange: 2.2
+  defenderWanderInterval: 3
 --- !u!114 &969901969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3497,7 +3506,12 @@ MonoBehaviour:
   fleeSpeed: 4
   acceleration: 20
   arriveRadius: 0.3
-  patrolPoints: []
+  patrolRoute: {fileID: 0}
+  aimController: {fileID: 0}
+  searchSweepAngle: 50
+  searchSweepSpeed: 2
+  pathfinding: {fileID: 0}
+  repathInterval: 0.5
   animator: {fileID: 0}
 --- !u!50 &969901972
 Rigidbody2D:
@@ -3570,7 +3584,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.8, y: 0.8}
   m_EdgeRadius: 0
 --- !u!1 &971078190
 GameObject:
@@ -12635,8 +12649,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   menuCanvas: {fileID: 1503645268}
   gameOverPage: {fileID: 1769096812}
+  victoryPage: {fileID: 0}
   pauseButton: {fileID: 175956066}
-  playerDamageable: {fileID: 622533959}
 --- !u!1 &1296058156
 GameObject:
   m_ObjectHideFlags: 0
@@ -13153,14 +13167,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740cfaf22406a5045853a679fad245dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
-  fovAngle: 60
-  viewDistance: 8
-  rayCount: 5
   obstacleMask:
     serializedVersion: 2
     m_Bits: 0
   showFOV: 0
   fovColor: {r: 1, g: 1, b: 0, a: 0.3}
+  rayCount: 5
 --- !u!4 &1618902030
 Transform:
   m_ObjectHideFlags: 0
