@@ -1785,7 +1785,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 5.814123, y: 2.1253998, z: -10}
+  m_LocalPosition: {x: 6.0300274, y: 3.0109298, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2432,6 +2432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
   maxHp: 20
+  logDamage: 0
 --- !u!1 &664988131
 GameObject:
   m_ObjectHideFlags: 0
@@ -3536,6 +3537,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Damageable
   maxHp: 10
+  logDamage: 0
 --- !u!114 &969901968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3548,17 +3550,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fb208489d73ce5408477672cad74570, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAI
-  archetype: 1
+  behavior: {fileID: 11400000, guid: 121e6653d4e532c4daddb8cf533e3bd0, type: 2}
   bulletSpawn: {fileID: 1454126046}
   aimController: {fileID: 0}
+  levelManager: {fileID: 0}
+  defendPoint: {fileID: 0}
+  investigateArriveRadius: 0.6
+  investigateTimeout: 8
   deathEffectPrefab: {fileID: 0}
-  defenseRadius: 3.5
-  preferredMinDist: 2
-  preferredMaxDist: 4
-  strafeClockwise: 1
-  strafeSwitchInterval: 2.5
-  attackRange: 3
-  defenderWanderInterval: 3
+  logTransitions: 0
 --- !u!114 &969901969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3593,6 +3593,9 @@ MonoBehaviour:
   senseDistance: 15
   loadDistance: 20
   awarenessDecayRate: 0.25
+  drawLastKnown: 1
+  drawRanges: 0
+  drawFacingCross: 0
 --- !u!114 &969901971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3702,14 +3705,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
-  ROW: 15
-  COL: 15
-  cellSize: 1
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  collisionRadius: 0.25
-  drawGrid: 1
+  cornerArriveThreshold: 0.35
   drawPath: 1
 --- !u!114 &969901975
 MonoBehaviour:
@@ -13455,6 +13451,60 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!1 &1681067411
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1681067413}
+  - component: {fileID: 1681067412}
+  m_Layer: 0
+  m_Name: GridManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1681067412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1681067411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4f4a0f7868c643488f169c3655ff588, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridManager
+  origin: {x: 3.5, y: -5.5}
+  width: 50
+  height: 50
+  cellSize: 1
+  agentWidth: 0.8
+  skinWidth: 0.05
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 8
+  showGizmos: 1
+--- !u!4 &1681067413
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1681067411}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -4.36879, y: 0.68812, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1725968781
 GameObject:
   m_ObjectHideFlags: 0
@@ -15246,3 +15296,4 @@ SceneRoots:
   - {fileID: 969901966}
   - {fileID: 28529067}
   - {fileID: 667298698}
+  - {fileID: 1681067413}
