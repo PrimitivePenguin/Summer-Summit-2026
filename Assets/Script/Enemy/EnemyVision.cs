@@ -37,6 +37,14 @@ public class EnemyVision : MonoBehaviour
     Transform player;
     AimController aimController;
 
+
+    public void AlertToPosition(Vector2 soundOrigin, float alertAwareness = 1.0f)
+    {
+        lastKnownPosition = soundOrigin;
+        hasLastKnown = true;
+        awareness = Mathf.Max(awareness, alertAwareness);
+    }
+
     // INPUT:  player transform, aim controller
     // OUTPUT: stores refs, defaults wallLayer
     // USE:    once from EnemyController.Start
@@ -53,6 +61,13 @@ public class EnemyVision : MonoBehaviour
     public void Tick()
     {
         if (player == null) return;
+
+        if (PlayerDive.IsPlayerSubmerged)
+        {
+            canSeePlayer = false;
+            awareness = Mathf.Max(0f, awareness - Time.deltaTime * 2f);
+            return;
+        }
 
         canSeePlayer = CheckPlayerVisible();
         sensedPlayer = CheckPlayerSensed();
