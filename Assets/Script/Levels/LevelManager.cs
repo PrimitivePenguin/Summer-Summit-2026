@@ -32,7 +32,8 @@ public class LevelManager : MonoBehaviour
     public void SetKillTarget(Damageable d)
     {
         if (killTarget != null) killTarget.OnDeath -= TriggerVictory;
-        killTarget = d; if (d != null) d.OnDeath += TriggerVictory;
+        killTarget = d;
+        if (d != null && winCondition == WinConditionType.KillTarget) d.OnDeath += TriggerVictory;
     }
 
     public event Action<WinConditionType> OnLevelWon;
@@ -41,10 +42,11 @@ public class LevelManager : MonoBehaviour
     public event Action<float> OnTimerTick;
     public event System.Action OnEnemyKilled;
 
-
+    private int pendingSpawnSources = 0;
     public bool IsLevelEnded { get; private set; }
     private int enemyCount = 0;
     private Damageable playerDamageable;
+
 
     // INPUT:  none
     // OUTPUT: singleton assignment
@@ -96,6 +98,25 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    // INPUT:  none
+    // OUTPUT: pendingSpawnSources + 1
+    // USE:    WaveController.Start/Begin, BossArenaTrigger.Start — anything that will spawn enemies later.
+    //         While > 0, EliminateAll cannot fire even if enemyCount hits 0.
+    public void RegisterSpawnSource() => pendingSpawnSources++;
+
+    // INPUT:  none
+    // OUTPUT: pendingSpawnSources - 1; re-checks EliminateAll (last enemy may already be dead)
+    // USE:    same caller, once it has nothing left to spawn
+
+    // INPUT:  none
+    // OUTPUT: true while any source still intends to spawn
+    // USE:    UI ("more incoming…"), debug
+    public bool AreSpawnsPending => pendingSpawnSources > 0;
+    public void UnregisterSpawnSource()
+    {
+        pendingSpawnSources = Mathf.Max(0, pendingSpawnSources - 1);
+        CheckEliminateAll();
+    }
     private void OnDestroy()
     {
         if (playerDamageable != null)
@@ -119,22 +140,29 @@ public class LevelManager : MonoBehaviour
     }
 
     // INPUT:  none
-    // OUTPUT: enemyCount - 1, UI event, victory if EliminateAll hits 0
-    // USE:    EnemyController.HandleDeath (now guaranteed once per enemy by Damageable)
+    // OUTPUT: enemyCount - 1, UI event, kill event; victory only via CheckEliminateAll
+    // USE:    EnemyController.HandleDeath
     public void UnregisterEnemy()
     {
-    
         if (IsLevelEnded) return;
 
         enemyCount = Mathf.Max(0, enemyCount - 1);
         OnEnemiesRemainingChanged?.Invoke(enemyCount);
         OnEnemyKilled?.Invoke();
-    
-        if (winCondition == WinConditionType.EliminateAll && enemyCount == 0)
-        {
-            TriggerVictory();
-        }
+
+        CheckEliminateAll();
     }
+
+    // INPUT:  enemyCount, pendingSpawnSources, winCondition
+    // OUTPUT: TriggerVictory iff EliminateAll AND nobody alive AND nobody coming
+    // USE:    UnregisterEnemy, UnregisterSpawnSource
+    private void CheckEliminateAll()
+    {
+        if (winCondition != WinConditionType.EliminateAll) return;
+        if (enemyCount == 0 && pendingSpawnSources == 0) TriggerVictory();
+    }
+
+
     // --- WIN / LOSS TRIGGERS ---
 
     // INPUT:  none

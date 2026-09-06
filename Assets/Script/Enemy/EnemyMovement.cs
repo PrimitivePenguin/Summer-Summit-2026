@@ -28,6 +28,7 @@ public class EnemyMovement : MonoBehaviour
     private float searchBaseAngle;
     private bool isSearching;
     private float searchTimer;
+    private bool routeAssignedExternally;
 
     private PatrolRoute route; 
     private Vector3 currentPatrolTarget;
@@ -50,19 +51,26 @@ public class EnemyMovement : MonoBehaviour
         rb.angularVelocity = 0f;
     }
 
+    // INPUT:  patrolRoute (inspector) unless SetRoute already ran this frame
+    // OUTPUT: route resolved exactly once; path computed
+    // USE:    Unity
     private void Start()
     {
         if (pathfinding == null) pathfinding = GetComponent<EnemyPathfinding>();
         if (aimController == null) aimController = GetComponent<AimController>();
 
-        route = patrolRoute;
-
-        if (route != null && route.WaypointCount > 0)
+        if (!routeAssignedExternally)
         {
-            patrolIndex = 0;
-            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
-            if (pathfinding != null) pathfinding.ComputePath(currentPatrolTarget);
+            route = patrolRoute;
+            if (route != null && route.WaypointCount > 0)
+            {
+                patrolIndex = 0;
+                currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+            }
         }
+
+        if (route != null && route.WaypointCount > 0 && pathfinding != null)
+            pathfinding.ComputePath(currentPatrolTarget);
     }
 
     public void Initialize(float moveSpeed, float patrolSpeed, float fleeSpeed)
@@ -142,6 +150,17 @@ public class EnemyMovement : MonoBehaviour
 
     // ── Patrol ────────────────────────────────────────────────────────────────
 
+    private int NearestWaypointIndex(PatrolRoute r)
+    {
+        float best = float.MaxValue; int bestIndex = 0;
+        for (int i = 0; i < r.WaypointCount; i++)
+        {
+            float d = Vector2.SqrMagnitude((Vector2)r.GetCenter(i) - (Vector2)transform.position);
+            if (d < best) { best = d; bestIndex = i; }
+        }
+        return bestIndex;
+    }
+
     public void Patrol()
     {
         if (route == null || route.WaypointCount == 0)
@@ -176,32 +195,34 @@ public class EnemyMovement : MonoBehaviour
         FaceToward(nextStep);
     }
 
+    // INPUT:  none (reads current route + transform.position)
+    // OUTPUT: patrolIndex snapped to the nearest waypoint, path recomputed
+    // USE:    EnemyController.SetState(Patrol) — after giving up a Search
     public void ResumePatrolFromNearest()
     {
         if (route == null || route.WaypointCount == 0) return;
-
-        float best = float.MaxValue;
-        int bestIndex = 0;
-        for (int i = 0; i < route.WaypointCount; i++)
-        {
-            float d = Vector2.SqrMagnitude((Vector2)route.GetCenter(i) - (Vector2)transform.position);
-            if (d < best) 
-            { 
-                best = d; 
-                bestIndex = i; 
-            }
-        }
-
-        patrolIndex = bestIndex;
+        patrolIndex = NearestWaypointIndex(route);
         currentPatrolTarget = route.SampleWaypoint(patrolIndex);
         if (pathfinding != null) pathfinding.ComputePath(currentPatrolTarget);
     }
 
     // ── Wave ───────────────────────────────────────────────────────────────
     // INPUT:  route
-    // OUTPUT: patrol state reset to that route's first waypoint
-    // USE:    WaveSpawner right after Instantiate (before the enemy's Start runs)
-    public void SetRoute(PatrolRoute newRoute) { patrolRoute = newRoute; route = newRoute; patrolIndex = 0; }
+    // OUTPUT: patrolIndex set to the NEAREST waypoint to this enemy's spawn position —
+    //         not always 0 — so enemies scattered across several spawn points scatter
+    //         across the route too, instead of all beelining the same first waypoint
+    // USE:    EnemySpawner.Spawn, right after Instantiate, before this enemy's own Start
+    public void SetRoute(PatrolRoute newRoute)
+    {
+        patrolRoute = newRoute;
+        route = newRoute;
+        if (route != null && route.WaypointCount > 0)
+        {
+            patrolIndex = NearestWaypointIndex(route);
+            currentPatrolTarget = route.SampleWaypoint(patrolIndex);
+        }
+        routeAssignedExternally = true;   // tells Start() not to reset this back to 0
+    }
     
     // ── Physics ───────────────────────────────────────────────────────────────
 
