@@ -108,6 +108,10 @@ PrefabInstance:
       propertyPath: maxHp
       value: 20
       objectReference: {fileID: 0}
+    - target: {fileID: 4406562242418422180, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.8666667
+      objectReference: {fileID: 0}
     - target: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Name
       value: Elite_Defender
@@ -118,11 +122,11 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 2b52d006dc5f81a419c6760e206c0af4, type: 2}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.74
+      value: 3.03544
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.92
+      value: 1.92443
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.z
@@ -157,19 +161,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 2905988602265066395, guid: d73bf83f43c10964891f608f5815e11f, type: 3}
+    - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.b
-      value: 0
+      value: 0.56443566
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.g
-      value: 0.28962505
+      value: 0.67623365
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.r
-      value: 1
+      value: 0.9496855
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5075873805835274403, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5536599880671405890, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       insertIndex: -1

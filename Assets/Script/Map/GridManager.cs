@@ -19,8 +19,10 @@ public class GridManager : MonoBehaviour
     private bool dirty;
     public void MarkDirty() => dirty = true;
     private void LateUpdate() { if (dirty) { dirty = false; BuildWalkableGrid(); } }   // batched: 10 crates dying in one frame = one rebuild
+    [SerializeField] private bool usePathSmoothing = false;
     [Header("Debug")]
     [SerializeField] private bool showGizmos = true;
+
 
     private bool[,] walkableGrid;
     private static readonly Vector2Int[] CardinalDirs = {
@@ -91,6 +93,9 @@ public class GridManager : MonoBehaviour
         return cell;
     }
 
+        // INPUT:  start/goal world positions
+    // OUTPUT: waypoint list from start to goal, raw or smoothed per usePathSmoothing
+    // USE:    EnemyPathfinding.ComputePath. REPLACES old FindPath (adds smoothing toggle)
     public List<Vector2> FindPath(Vector2 startWorld, Vector2 goalWorld)
     {
         Vector2Int start = GetNearestWalkable(WorldToGrid(startWorld));
@@ -109,17 +114,11 @@ public class GridManager : MonoBehaviour
         while (queue.Count > 0)
         {
             Vector2Int current = queue.Dequeue();
-
-            if (current == goal)
-            {
-                reached = true;
-                break;
-            }
+            if (current == goal) { reached = true; break; }
 
             for (int i = 0; i < 4; i++)
             {
                 Vector2Int next = current + CardinalDirs[i];
-
                 if (IsInBounds(next) && !visited.Contains(next) && walkableGrid[next.x, next.y])
                 {
                     visited.Add(next);
@@ -142,7 +141,7 @@ public class GridManager : MonoBehaviour
         rawPath.Reverse();
         rawPath[rawPath.Count - 1] = goalWorld;
 
-        return SmoothPath(rawPath);
+        return usePathSmoothing ? SmoothPath(rawPath) : rawPath;
     }
 
     private List<Vector2> SmoothPath(List<Vector2> path)

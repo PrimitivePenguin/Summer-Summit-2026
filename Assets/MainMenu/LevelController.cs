@@ -42,14 +42,14 @@ public class LevelController : MonoBehaviour
         }
     }
     
-    // // Add this to the end of whatever level we complete
-    // void UnlockNewLevel()
-    // {
-    //     if (SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex"))
-    //     {
-    //         PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
-    //         PlayerPrefs.SetInt("UnlockedLevel", SceneManager.GetInt("UnlockedLevel", 1) + 1);
-    //         PlayerPrefs.Save();
-    //     }
-    // }
+    // Add this to the end of whatever level we complete
+    void UnlockNewLevel()
+    {
+        if (SceneManager.GetActiveScene().buildIndex >= PlayerPrefs.GetInt("ReachedIndex"))
+        {
+            PlayerPrefs.SetInt("ReachedIndex", SceneManager.GetActiveScene().buildIndex + 1);
+            PlayerPrefs.SetInt("UnlockedLevel", PlayerPrefs.GetInt("UnlockedLevel", 1) + 1);
+            PlayerPrefs.Save();
+        }
+    }
 }

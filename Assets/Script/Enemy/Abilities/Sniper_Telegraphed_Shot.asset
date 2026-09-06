@@ -16,6 +16,6 @@ MonoBehaviour:
   telegraphDuration: 2
   maxRange: 10
   requiresContact: 1
-  telegraphPrefab: {fileID: 0}
-  effectPrefab: {fileID: 0}
+  telegraphPrefab: {fileID: 3137234375743400948, guid: 4048477a3920cf74bbbcff939645687f, type: 3}
+  effectPrefab: {fileID: 3137234375743400948, guid: 4048477a3920cf74bbbcff939645687f, type: 3}
   laserLength: 30

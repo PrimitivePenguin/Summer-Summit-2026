@@ -201,7 +201,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 15
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -267,11 +267,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 96
+        y: 97
         width: 256
-        height: 144
+        height: 143
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -288,12 +288,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_1
       rect:
         serializedVersion: 2
-        x: 2
-        y: 95
-        width: 13
-        height: 16
+        x: 3
+        y: 96
+        width: 11
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -310,12 +310,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_2
       rect:
         serializedVersion: 2
-        x: 2
-        y: 79
-        width: 13
-        height: 17
+        x: 19
+        y: 96
+        width: 11
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -332,12 +332,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_3
       rect:
         serializedVersion: 2
-        x: 18
-        y: 95
-        width: 13
-        height: 16
+        x: 35
+        y: 96
+        width: 11
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -354,12 +354,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_4
       rect:
         serializedVersion: 2
-        x: 18
-        y: 79
-        width: 13
-        height: 17
+        x: 51
+        y: 96
+        width: 11
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -376,12 +376,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_5
       rect:
         serializedVersion: 2
-        x: 34
-        y: 95
-        width: 13
-        height: 16
+        x: 64
+        y: 96
+        width: 15
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -398,12 +398,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_6
       rect:
         serializedVersion: 2
-        x: 34
-        y: 79
-        width: 13
-        height: 17
+        x: 80
+        y: 96
+        width: 16
+        height: 13
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -420,12 +420,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_7
       rect:
         serializedVersion: 2
-        x: 50
-        y: 95
+        x: 98
+        y: 96
         width: 13
-        height: 16
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -442,12 +442,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_8
       rect:
         serializedVersion: 2
-        x: 50
-        y: 79
-        width: 13
-        height: 17
+        x: 114
+        y: 96
+        width: 10
+        height: 12
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -464,12 +464,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_9
       rect:
         serializedVersion: 2
-        x: 63
-        y: 95
-        width: 17
-        height: 33
+        x: 3
+        y: 80
+        width: 11
+        height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -486,12 +486,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_10
       rect:
         serializedVersion: 2
-        x: 63
-        y: 32
-        width: 34
-        height: 64
+        x: 19
+        y: 80
+        width: 11
+        height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -508,12 +508,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_11
       rect:
         serializedVersion: 2
-        x: 79
-        y: 95
-        width: 18
+        x: 35
+        y: 80
+        width: 11
         height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -530,12 +530,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_12
       rect:
         serializedVersion: 2
-        x: 96
-        y: 63
-        width: 13
-        height: 33
+        x: 51
+        y: 80
+        width: 11
+        height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -552,12 +552,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_13
       rect:
         serializedVersion: 2
-        x: 97
-        y: 95
-        width: 15
-        height: 11
+        x: 64
+        y: 33
+        width: 32
+        height: 62
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -574,12 +574,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_14
       rect:
         serializedVersion: 2
-        x: 112
-        y: 63
-        width: 14
-        height: 33
+        x: 97
+        y: 64
+        width: 11
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -597,11 +597,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 113
-        y: 95
+        y: 64
         width: 12
-        height: 14
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -618,12 +618,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_16
       rect:
         serializedVersion: 2
-        x: 127
-        y: 63
-        width: 34
-        height: 33
+        x: 128
+        y: 64
+        width: 32
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -640,12 +640,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_17
       rect:
         serializedVersion: 2
-        x: 196
-        y: 82
-        width: 7
-        height: 13
+        x: 197
+        y: 83
+        width: 5
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -662,12 +662,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_18
       rect:
         serializedVersion: 2
-        x: 212
-        y: 82
-        width: 7
-        height: 13
+        x: 213
+        y: 83
+        width: 5
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -684,12 +684,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_19
       rect:
         serializedVersion: 2
-        x: 227
-        y: 81
-        width: 9
-        height: 13
+        x: 228
+        y: 82
+        width: 7
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -706,12 +706,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_20
       rect:
         serializedVersion: 2
-        x: 243
-        y: 81
-        width: 9
-        height: 13
+        x: 244
+        y: 82
+        width: 7
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -729,11 +729,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 47
-        width: 33
-        height: 33
+        y: 48
+        width: 32
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -750,12 +750,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_22
       rect:
         serializedVersion: 2
-        x: 32
-        y: 63
-        width: 15
-        height: 17
+        x: 33
+        y: 64
+        width: 13
+        height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -772,12 +772,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_23
       rect:
         serializedVersion: 2
-        x: 212
-        y: 66
-        width: 7
-        height: 13
+        x: 213
+        y: 67
+        width: 5
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -794,12 +794,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_24
       rect:
         serializedVersion: 2
-        x: 227
-        y: 65
-        width: 9
-        height: 13
+        x: 228
+        y: 66
+        width: 7
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -816,12 +816,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_25
       rect:
         serializedVersion: 2
-        x: 243
-        y: 65
-        width: 9
-        height: 13
+        x: 244
+        y: 66
+        width: 7
+        height: 11
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -838,12 +838,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_26
       rect:
         serializedVersion: 2
-        x: 34
-        y: 47
-        width: 12
-        height: 16
+        x: 35
+        y: 48
+        width: 10
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -860,12 +860,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_27
       rect:
         serializedVersion: 2
-        x: 95
-        y: 31
-        width: 34
-        height: 33
+        x: 96
+        y: 32
+        width: 32
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -882,12 +882,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_28
       rect:
         serializedVersion: 2
-        x: 127
-        y: 10
-        width: 66
-        height: 44
+        x: 128
+        y: 11
+        width: 64
+        height: 42
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -904,12 +904,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_29
       rect:
         serializedVersion: 2
-        x: 146
-        y: 49
-        width: 8
-        height: 9
+        x: 147
+        y: 50
+        width: 6
+        height: 7
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -926,12 +926,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_30
       rect:
         serializedVersion: 2
-        x: 178
-        y: 49
-        width: 8
-        height: 9
+        x: 179
+        y: 50
+        width: 6
+        height: 7
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -948,12 +948,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_31
       rect:
         serializedVersion: 2
-        x: 198
-        y: 50
-        width: 9
-        height: 8
+        x: 199
+        y: 51
+        width: 7
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -970,12 +970,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_32
       rect:
         serializedVersion: 2
-        x: 202
+        x: 203
         y: 0
-        width: 44
-        height: 65
+        width: 42
+        height: 64
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -993,11 +993,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 0
-        y: 15
-        width: 33
-        height: 33
+        y: 16
+        width: 32
+        height: 31
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1014,12 +1014,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_34
       rect:
         serializedVersion: 2
-        x: 34
-        y: 31
-        width: 12
-        height: 15
+        x: 35
+        y: 32
+        width: 10
+        height: 13
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1036,12 +1036,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_35
       rect:
         serializedVersion: 2
-        x: 241
-        y: 38
-        width: 9
-        height: 8
+        x: 242
+        y: 39
+        width: 7
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1058,12 +1058,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_36
       rect:
         serializedVersion: 2
-        x: 34
-        y: 15
-        width: 12
-        height: 16
+        x: 35
+        y: 16
+        width: 10
+        height: 14
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1080,12 +1080,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_37
       rect:
         serializedVersion: 2
-        x: 63
-        y: 24
-        width: 35
-        height: 8
+        x: 64
+        y: 25
+        width: 33
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1102,12 +1102,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_38
       rect:
         serializedVersion: 2
-        x: 63
-        y: 16
-        width: 35
-        height: 8
+        x: 98
+        y: 20
+        width: 14
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1124,12 +1124,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_39
       rect:
         serializedVersion: 2
-        x: 97
-        y: 19
-        width: 16
-        height: 11
+        x: 113
+        y: 20
+        width: 14
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1146,12 +1146,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_40
       rect:
         serializedVersion: 2
-        x: 112
+        x: 199
         y: 19
-        width: 16
-        height: 11
+        width: 7
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1168,12 +1168,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_41
       rect:
         serializedVersion: 2
-        x: 198
-        y: 18
-        width: 9
-        height: 8
+        x: 64
+        y: 17
+        width: 33
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1190,12 +1190,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_42
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 33
-        height: 16
+        x: 135
+        y: 7
+        width: 11
+        height: 10
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1212,12 +1212,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_43
       rect:
         serializedVersion: 2
-        x: 34
-        y: 0
-        width: 12
-        height: 14
+        x: 167
+        y: 7
+        width: 11
+        height: 10
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1234,12 +1234,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_44
       rect:
         serializedVersion: 2
-        x: 63
-        y: 8
-        width: 35
-        height: 8
+        x: 0
+        y: 0
+        width: 32
+        height: 15
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1256,12 +1256,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_45
       rect:
         serializedVersion: 2
-        x: 63
+        x: 35
         y: 0
-        width: 35
-        height: 8
+        width: 10
+        height: 13
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1278,12 +1278,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_46
       rect:
         serializedVersion: 2
-        x: 101
-        y: 2
-        width: 7
-        height: 9
+        x: 64
+        y: 9
+        width: 33
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1300,12 +1300,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_47
       rect:
         serializedVersion: 2
-        x: 115
-        y: 1
-        width: 10
-        height: 11
+        x: 102
+        y: 3
+        width: 5
+        height: 7
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1322,12 +1322,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_48
       rect:
         serializedVersion: 2
-        x: 134
-        y: 6
-        width: 13
-        height: 12
+        x: 116
+        y: 2
+        width: 8
+        height: 9
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1344,12 +1344,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_49
       rect:
         serializedVersion: 2
-        x: 166
-        y: 6
-        width: 13
-        height: 12
+        x: 242
+        y: 7
+        width: 7
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1366,12 +1366,12 @@ TextureImporter:
       name: SciFi_DungeonTileset16x16_0x72Like_50
       rect:
         serializedVersion: 2
-        x: 241
-        y: 6
-        width: 9
-        height: 8
+        x: 64
+        y: 1
+        width: 33
+        height: 6
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -1388,7 +1388,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 2316dada52ddda74ab8bef21263ed549
     internalID: 0
     vertices: []
     indices: 
@@ -1396,7 +1396,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":0,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       SciFi_DungeonTileset16x16_0x72Like_0: 1332507718517233098
       SciFi_DungeonTileset16x16_0x72Like_1: 6919477048227612982

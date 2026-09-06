@@ -33,6 +33,7 @@ public class PlayerDive : MonoBehaviour
     [Header("Visual Shifting (Submerged)")]
     [Tooltip("The fullscreen black sprite covering the camera (Order in Layer ~50)")]
     [SerializeField] private GameObject submergedBlackout;
+    [SerializeField] private SonarVisual sonar;
 
     [Tooltip("The TilemapRenderer on your neon green cloned tilemap under Grid (Order in Layer ~60)")]
     [SerializeField] private Renderer neonWallsRenderer;
@@ -196,6 +197,9 @@ public class PlayerDive : MonoBehaviour
         }
     }
 
+        // INPUT:  none
+    // OUTPUT: submerged state on, renderers hidden, blackout + walls + sonar on, collider/layer swapped
+    // USE:    ToggleDive, hold-mode press
     private void Dive()
     {
         isSubmerged = true;
@@ -206,22 +210,16 @@ public class PlayerDive : MonoBehaviour
 
         foreach (var r in renderersToHide)
         {
-            // Do NOT hide the green dot, nor any graphics belonging to the overhead bar
             if (r == null) continue;
             if (submergedPlayerDot != null && r.gameObject == submergedPlayerDot) continue;
             if (overheadAirSlider != null && r.transform.IsChildOf(overheadAirSlider.transform)) continue;
-
             r.enabled = false;
         }
 
-        if (submergedPlayerDot != null)
-            submergedPlayerDot.SetActive(true);
-
-        if (submergedBlackout != null)
-            submergedBlackout.SetActive(true);
-
-        if (neonWallsRenderer != null)
-            neonWallsRenderer.enabled = true;
+        if (submergedPlayerDot != null) submergedPlayerDot.SetActive(true);
+        if (submergedBlackout != null) submergedBlackout.SetActive(true);
+        if (neonWallsRenderer != null) neonWallsRenderer.enabled = true;
+        if (sonar != null) sonar.Begin();              // ← NEW: darkness mask + first ping
 
         gameObject.tag = "Untagged";
         gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
@@ -230,29 +228,20 @@ public class PlayerDive : MonoBehaviour
         UpdateOverheadBar();
     }
 
+        // INPUT:  forcedByAirDepletion — true when air hit 0
+    // OUTPUT: visuals restored, collider/layer/tag restored; recoil ONLY on drowning
+    // USE:    ToggleDive, hold-release, HandleAir. REPLACES old Surface (no ambush strike)
     private void Surface(bool forcedByAirDepletion)
     {
-        if (forcedByAirDepletion)
-        {
-            Debug.Log("[PlayerDive] Air depleted while submerged!");
-            ApplyRecoilPenalty();
-        }
-        else
-        {
-            ExecuteAmbushBurst();
-        }
+        if (forcedByAirDepletion) ApplyRecoilPenalty();
 
         isSubmerged = false;
         IsPlayerSubmerged = false;
 
-        if (submergedPlayerDot != null)
-            submergedPlayerDot.SetActive(false);
-
-        if (submergedBlackout != null)
-            submergedBlackout.SetActive(false);
-
-        if (neonWallsRenderer != null)
-            neonWallsRenderer.enabled = false;
+        if (sonar != null) sonar.End();
+        if (submergedPlayerDot != null) submergedPlayerDot.SetActive(false);
+        if (submergedBlackout != null) submergedBlackout.SetActive(false);
+        if (neonWallsRenderer != null) neonWallsRenderer.enabled = false;
 
         foreach (var r in renderersToHide)
             if (r != null) r.enabled = true;
@@ -264,33 +253,33 @@ public class PlayerDive : MonoBehaviour
         UpdateOverheadBar();
     }
 
-    private void ExecuteAmbushBurst()
-    {
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, ambushRadius, enemyLayerMask);
-        bool landedAmbush = false;
+    // private void ExecuteAmbushBurst()
+    // {
+    //     Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, ambushRadius, enemyLayerMask);
+    //     bool landedAmbush = false;
 
-        foreach (var col in hits)
-        {
-            EnemyVision vision = col.GetComponent<EnemyVision>() ?? col.GetComponentInParent<EnemyVision>();
-            bool enemyDoesNotSeeMe = (vision == null || !vision.canSeePlayer);
+    //     foreach (var col in hits)
+    //     {
+    //         EnemyVision vision = col.GetComponent<EnemyVision>() ?? col.GetComponentInParent<EnemyVision>();
+    //         bool enemyDoesNotSeeMe = (vision == null || !vision.canSeePlayer);
 
-            if (enemyDoesNotSeeMe)
-            {
-                Damageable dmg = col.GetComponent<Damageable>() ?? col.GetComponentInParent<Damageable>();
-                if (dmg != null)
-                {
-                    dmg.TakeDamage(ambushDamage);
-                    landedAmbush = true;
-                    Debug.Log($"[PlayerDive] Ambushed {col.name} for {ambushDamage} damage!");
-                }
-            }
-        }
+    //         if (enemyDoesNotSeeMe)
+    //         {
+    //             Damageable dmg = col.GetComponent<Damageable>() ?? col.GetComponentInParent<Damageable>();
+    //             if (dmg != null)
+    //             {
+    //                 dmg.TakeDamage(ambushDamage);
+    //                 landedAmbush = true;
+    //                 Debug.Log($"[PlayerDive] Ambushed {col.name} for {ambushDamage} damage!");
+    //             }
+    //         }
+    //     }
 
-        if (!landedAmbush)
-        {
-            ApplyRecoilPenalty();
-        }
-    }
+    //     if (!landedAmbush)
+    //     {
+    //         ApplyRecoilPenalty();
+    //     }
+    // }
 
     private void ApplyRecoilPenalty()
     {

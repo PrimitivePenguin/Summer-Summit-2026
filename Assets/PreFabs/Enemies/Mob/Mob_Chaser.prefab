@@ -104,17 +104,25 @@ PrefabInstance:
       propertyPath: maxHp
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 4406562242418422180, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 0.6666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 4406562242418422180, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Name
       value: Mob_Chaser
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.74
+      value: 7.58
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.92
+      value: 1.77
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.z
@@ -149,19 +157,24 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 8174297326742283833, guid: d73bf83f43c10964891f608f5815e11f, type: 3}
+    - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.b
-      value: 0.0022149533
+      value: 0.003921579
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.g
-      value: 0.39359885
+      value: 0.7058824
       objectReference: {fileID: 0}
     - target: {fileID: 8475065424716996930, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Color.r
-      value: 0.70440245
+      value: 0.21654439
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 5075873805835274403, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5536599880671405890, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       insertIndex: -1

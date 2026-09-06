@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1384248654455050359}
   - component: {fileID: 7155378202601886737}
+  - component: {fileID: 8042413352411849115}
   m_Layer: 0
   m_Name: SniperLaserTelegraph
   m_TagString: Untagged
@@ -92,7 +93,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
+        value: 0.07408142
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -101,7 +102,7 @@ LineRenderer:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 1
+        value: 0.05555725
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -151,3 +152,16 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!210 &8042413352411849115
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3137234375743400948}
+  m_Enabled: 1
+  m_SortingLayerID: -21993213
+  m_SortingLayer: 5
+  m_SortingOrder: 0
+  m_SortAtRoot: 0
+  m_Sort3DAs2D: 0
