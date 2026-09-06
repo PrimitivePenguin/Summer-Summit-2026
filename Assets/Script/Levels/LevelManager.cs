@@ -18,6 +18,7 @@ public class LevelManager : MonoBehaviour
 
     [Header("Win Condition Selection")]
     [SerializeField] private WinConditionType winCondition = WinConditionType.EliminateAll;
+    public WinConditionType WinCondition => winCondition;
 
     [Header("Survive Settings (Condition 2)")]
     [SerializeField] private float surviveDuration = 60f;
