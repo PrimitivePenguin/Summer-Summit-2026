@@ -693,10 +693,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: EnemyV2_Defender
       objectReference: {fileID: 0}
+    - target: {fileID: 6080164215454990319, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6114798753407890297, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
       propertyPath: behavior
       value: 
-      objectReference: {fileID: 11400000, guid: b55997c29eac5cd4d866b85202acf530, type: 2}
+      objectReference: {fileID: 11400000, guid: 2b52d006dc5f81a419c6760e206c0af4, type: 2}
     - target: {fileID: 6114798753407890297, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
       propertyPath: defendPoint
       value: 
@@ -2035,6 +2039,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TestPatrolTop Variant
       objectReference: {fileID: 0}
+    - target: {fileID: 2915961071868941477, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4329985456973436846, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -2077,11 +2085,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
       propertyPath: showLabels
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
       propertyPath: waypointRadius
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
+      propertyPath: toggleVisualization
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
       propertyPath: waypoints.Array.size
@@ -14939,11 +14951,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6080164215454990319, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
       propertyPath: m_Name
-      value: EnemyV2
+      value: EnemyV2_Chaser
       objectReference: {fileID: 0}
     - target: {fileID: 6080164215454990319, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6770820786004619386, guid: 0eaea1c657d86a3429038e3625bb11f4, type: 3}
       propertyPath: collisionRadius
