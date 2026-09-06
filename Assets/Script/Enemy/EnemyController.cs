@@ -9,9 +9,14 @@ public enum EnemyState
     Search       // arrived at last known position — sweep in place
 }
 
-// Decides state the enemy is in. HOW it executes is the ArchetypeBehavior's job.
-
-
+// Decides WHICH state the enemy is in. HOW it executes is the ArchetypeBehavior's job.
+//
+// FIXES IN THIS VERSION:
+//   EvaluateTransitions — Engage on vision.hasContact (cone OR sense). Previously only the
+//                         cone counted, so a point-blank player could never trigger firing.
+//   SetState            — unconditional Debug.Log removed; respects logTransitions.
+//   Update              — targetPos falls back to self when there is no valid fix.
+//   levelManager slot   — NEW inspector override for the LevelManager (null = singleton).
 public class EnemyController : MonoBehaviour
 {
     [Header("Behavior")]
@@ -23,6 +28,10 @@ public class EnemyController : MonoBehaviour
 
     [Header("Level Manager (optional override — leave null to use LevelManager.Instance)")]
     [SerializeField] private LevelManager levelManager;
+
+    [Header("Defend Point (Defender archetype only)")]
+    [Tooltip("The position this enemy defends. Leave null to use its spawn position.")]
+    [SerializeField] private Transform defendPoint;
 
     [Header("Investigation")]
     [SerializeField] private float investigateArriveRadius = 0.6f;
@@ -102,7 +111,7 @@ public class EnemyController : MonoBehaviour
             aim = aimController,
             bulletSpawn = bulletSpawn,
             vision = vision,
-            anchor = transform.position
+            anchor = (defendPoint != null) ? (Vector2)defendPoint.position : (Vector2)transform.position
         };
     }
 
@@ -223,9 +232,20 @@ public class EnemyController : MonoBehaviour
     {
         if (behavior is DefenderBehavior def)
         {
+            Vector3 centre = (Application.isPlaying && ctx != null)
+                ? (Vector3)ctx.anchor
+                : (defendPoint != null ? defendPoint.position : transform.position);
+
             Gizmos.color = Color.cyan;
-            Vector3 centre = (Application.isPlaying && ctx != null) ? (Vector3)ctx.anchor : transform.position;
             Gizmos.DrawWireSphere(centre, def.GetDefenseRadius());
+
+            // Draw a line from the enemy to the defend point so it is obvious in the scene view
+            if (defendPoint != null)
+            {
+                Gizmos.color = new Color(0f, 1f, 1f, 0.4f);
+                Gizmos.DrawLine(transform.position, defendPoint.position);
+                Gizmos.DrawSphere(defendPoint.position, 0.2f);
+            }
         }
     }
 }

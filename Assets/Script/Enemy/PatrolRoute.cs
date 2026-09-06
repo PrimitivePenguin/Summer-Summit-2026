@@ -24,6 +24,7 @@ public class PatrolRoute : MonoBehaviour
     [SerializeField] private Color routeColor = Color.cyan;
     [SerializeField] private float waypointRadius = 0.2f;
     [SerializeField] private bool showLabels = true;
+    
 
     // INPUT:  none
     // OUTPUT: number of REAL waypoints — valid indices are 0 .. WaypointCount-1

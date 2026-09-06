@@ -9,37 +9,39 @@ using UnityEngine;
 public class DefenderBehavior : ArchetypeBehavior
 {
     [Header("Defender")]
-    [SerializeField] private float defenseRadius = 3.5f;         // leash length from anchor
+    [SerializeField] private float defenseRadius = 3.5f;
     [SerializeField] private float strafeSwitchInterval = 2.5f;
-    [SerializeField] private float wanderInterval = 3f;          // idle repositioning rate
-    [SerializeField] private float anchorTolerance = 0.5f;       // "close enough to home"
+    [SerializeField] private float anchorTolerance = 0.5f;
 
-    // INPUT:  context with targetPos = player position, anchor = spawn point
-    // OUTPUT: leash-return, perimeter strafe, or measured advance — never past the leash
+    // INPUT:  context with targetPos = player position, anchor = defend point
+    // OUTPUT: movement + aim that keeps the enemy on its post
     // USE:    EnemyState.Engage
+    //
+    // Priority (highest first):
+    //   1. Too far from post → return home immediately
+    //   2. Player inside defend radius → strafe around player
+    //   3. Player outside → hold the perimeter edge, never chase past the leash
     public override void Engage(EnemyContext c)
     {
         c.aim.AimAt(c.targetPos);
         TickStrafeFlip(c, strafeSwitchInterval);
 
-        float myDist = Vector2.Distance(c.self.position, c.anchor);
-        float playerDist = Vector2.Distance(c.targetPos, c.anchor);
+        float myDist     = Vector2.Distance(c.self.position, c.anchor);
+        float playerDist = Vector2.Distance(c.targetPos,     c.anchor);
 
         if (myDist > defenseRadius)
-            c.movement.MoveTowardSmart(c.anchor);                 // pulled off post — return
+            c.movement.MoveTowardSmart(c.anchor);
         else if (playerDist <= defenseRadius)
-            c.movement.Strafe(c.targetPos, c.strafeClockwise);    // invader inside — circle them
-        else if (myDist < defenseRadius * 0.8f)
-            c.movement.MoveTowardSmart(c.targetPos);              // push toward the boundary
+            c.movement.Strafe(c.targetPos, c.strafeClockwise);
         else
-            c.movement.Strafe(c.anchor, c.strafeClockwise);       // hold the border, stay mobile
+            c.movement.Strafe(c.anchor, c.strafeClockwise);
 
         SetFiring(c, true);
     }
 
     // INPUT:  context with targetPos = last known position
-    // OUTPUT: WATCHES the last sighting but walks back to the anchor
-    // USE:    EnemyState.Investigate — the archetype-specific refusal to pursue
+    // OUTPUT: walks home; aims at the last sighting while doing so
+    // USE:    EnemyState.Investigate — defender never pursues, it just goes home
     public override void Investigate(EnemyContext c)
     {
         c.aim.AimAt(c.targetPos);
@@ -53,9 +55,8 @@ public class DefenderBehavior : ArchetypeBehavior
     }
 
     // INPUT:  context
-    // OUTPUT: finishes returning home, then sweeps in place
-    // USE:    EnemyState.Search — overrides the default so the defender never commits
-    //         to a distant last known position
+    // OUTPUT: returns home then sweeps in place
+    // USE:    EnemyState.Search
     public override void Search(EnemyContext c)
     {
         if (Vector2.Distance(c.self.position, c.anchor) > anchorTolerance)
@@ -64,19 +65,19 @@ public class DefenderBehavior : ArchetypeBehavior
             c.movement.Search();
     }
 
-    // INPUT:  context (anchor, wanderTarget, wanderTimer)
-    // OUTPUT: picks random points inside the defense radius and drifts between them
-    // USE:    EnemyState.Patrol — a defender has no route, it mills around its post
+    // INPUT:  context
+    // OUTPUT: stands still at the post, facing the defend point, scanning
+    // USE:    EnemyState.Patrol (unaware) — defender does not wander, it holds position
     public override void Idle(EnemyContext c)
     {
-        c.wanderTimer -= Time.deltaTime;
-        if (c.wanderTimer <= 0f || Vector2.Distance(c.self.position, c.wanderTarget) < 0.4f)
+        // Return to post if somehow displaced
+        if (Vector2.Distance(c.self.position, c.anchor) > anchorTolerance)
+            c.movement.MoveTowardSmart(c.anchor);
+        else
         {
-            c.wanderTarget = c.anchor + (Random.insideUnitCircle * (defenseRadius * 0.7f));
-            c.wanderTimer = wanderInterval;
+            c.movement.Stop();
+            c.movement.FaceToward(c.anchor); // face the defend point to keep the cone centred on it
         }
-
-        c.movement.MoveTowardSmart(c.wanderTarget);
     }
 
     // INPUT:  context

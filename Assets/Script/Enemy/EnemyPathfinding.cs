@@ -221,7 +221,7 @@ public class EnemyPathfinding : MonoBehaviour
         {
             if (hit == null) continue;
             if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
-            if (hit.CompareTag("Enemy") || hit.CompareTag("Player")) continue;
+            if ( hit.CompareTag("Player")) continue; //hit.CompareTag("Enemy") ||
             return false;
         }
         return true;
