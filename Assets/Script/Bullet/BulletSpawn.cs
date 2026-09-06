@@ -170,7 +170,7 @@ public class BulletSpawn : MonoBehaviour
         spawnedBullet.layer = bulletLayer;
 
         Bullet bullet = spawnedBullet.GetComponent<Bullet>();
-        bullet.Initialize(rotations[i], data.bulletSpeed, data.bulletDespawnDist, data.damage, data.collisionLayers);
+        bullet.Initialize(rotations[i], data);
         if (!spawnedBullet.activeInHierarchy)
         {
             spawnedBullet.SetActive(true);

@@ -6,7 +6,8 @@ public enum WinConditionType
 {
     EliminateAll,
     SurviveTime,
-    ReachFlag
+    ReachFlag,
+    KillTarget
 }
 
 // Win/loss tracking for one level. Declared PARTIAL so future systems live in
@@ -20,15 +21,26 @@ public class LevelManager : MonoBehaviour
 
     [Header("Survive Settings (Condition 2)")]
     [SerializeField] private float surviveDuration = 60f;
+    public float SurviveDuration => surviveDuration;
     private float timeRemaining;
 
     [Header("Flag Extraction (Condition 3)")]
     [SerializeField] private ExtractionFlag targetFlag;
 
+    [Header("Kill Target (Condition 4)")]
+    [SerializeField] private Damageable killTarget;    // may be null until BossArenaTrigger sets it
+    public void SetKillTarget(Damageable d)
+    {
+        if (killTarget != null) killTarget.OnDeath -= TriggerVictory;
+        killTarget = d; if (d != null) d.OnDeath += TriggerVictory;
+    }
+
     public event Action<WinConditionType> OnLevelWon;
     public event Action OnLevelLost;
     public event Action<int> OnEnemiesRemainingChanged;
     public event Action<float> OnTimerTick;
+    public event System.Action OnEnemyKilled;
+
 
     public bool IsLevelEnded { get; private set; }
     private int enemyCount = 0;
@@ -60,6 +72,8 @@ public class LevelManager : MonoBehaviour
             targetFlag.OnFlagReached += TriggerVictory;
         }
 
+        if (winCondition == WinConditionType.KillTarget && killTarget != null) SetKillTarget(killTarget);
+
         // Notify UI of initial enemy count once everyone has registered
         OnEnemiesRemainingChanged?.Invoke(enemyCount);
 
@@ -89,6 +103,8 @@ public class LevelManager : MonoBehaviour
 
         if (targetFlag != null)
             targetFlag.OnFlagReached -= TriggerVictory;
+        if (killTarget != null)
+            killTarget.OnDeath -= TriggerVictory;
     }
 
     // --- ENEMY TRACKING METHODS ---
@@ -107,17 +123,18 @@ public class LevelManager : MonoBehaviour
     // USE:    EnemyController.HandleDeath (now guaranteed once per enemy by Damageable)
     public void UnregisterEnemy()
     {
+    
         if (IsLevelEnded) return;
 
         enemyCount = Mathf.Max(0, enemyCount - 1);
         OnEnemiesRemainingChanged?.Invoke(enemyCount);
-
+        OnEnemyKilled?.Invoke();
+    
         if (winCondition == WinConditionType.EliminateAll && enemyCount == 0)
         {
             TriggerVictory();
         }
     }
-
     // --- WIN / LOSS TRIGGERS ---
 
     // INPUT:  none

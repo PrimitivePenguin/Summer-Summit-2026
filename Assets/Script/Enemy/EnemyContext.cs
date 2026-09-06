@@ -18,6 +18,10 @@ public class EnemyContext
     public BulletSpawn bulletSpawn;
     public EnemyVision vision;
     public Vector2 anchor;          // spawn position — the Defender's home post
+    public Damageable damageable;
+    public AbilityRunner abilities;      // null when the enemy has none
+    public EnemyController controller;
+    
 
     // ── Per-frame slice: refreshed by EnemyController.Update ──────────────────
     // targetPos is the player position while Engaging, and vision.lastKnownPosition
@@ -30,4 +34,5 @@ public class EnemyContext
     public float strafeTimer;
     public Vector2 wanderTarget;
     public float wanderTimer;
+    public System.Collections.Generic.List<GameObject> tracked = new();
 }

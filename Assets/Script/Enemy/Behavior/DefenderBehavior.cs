@@ -23,6 +23,7 @@ public class DefenderBehavior : ArchetypeBehavior
     //   3. Player outside → hold the perimeter edge, never chase past the leash
     public override void Engage(EnemyContext c)
     {
+        if (HandleAbilities(c)) return;   // abilities take priority over movement/firing
         c.aim.AimAt(c.targetPos);
         TickStrafeFlip(c, strafeSwitchInterval);
 
@@ -44,6 +45,7 @@ public class DefenderBehavior : ArchetypeBehavior
     // USE:    EnemyState.Investigate — defender never pursues, it just goes home
     public override void Investigate(EnemyContext c)
     {
+        if (HandleAbilities(c)) return; // Use stale pos -> artillery
         c.aim.AimAt(c.targetPos);
 
         if (Vector2.Distance(c.self.position, c.anchor) > anchorTolerance)

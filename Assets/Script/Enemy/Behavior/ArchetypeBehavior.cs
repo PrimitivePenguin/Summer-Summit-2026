@@ -15,6 +15,7 @@ public abstract class ArchetypeBehavior : ScriptableObject
 {
     [Header("Firing")]
     [SerializeField] protected float aimTolerance = 15f;   // degrees of error allowed before firing
+    [SerializeField] protected bool autoFire = true; // False -> only abilities -> sniper
 
     // INPUT:  context with targetPos = live player position
     // OUTPUT: movement + aim + firing for "I can see the player right now"
@@ -48,7 +49,7 @@ public abstract class ArchetypeBehavior : ScriptableObject
         if (c.bulletSpawn == null) return;
 
         c.bulletSpawn.isAutomaticSpawn =
-            wantsToFire && c.aim != null && c.aim.IsAimedAt(c.targetPos, aimTolerance);
+            wantsToFire && autoFire &&c.aim != null && c.aim.IsAimedAt(c.targetPos, aimTolerance);
     }
 
     // INPUT:  context, seconds between direction flips
@@ -63,5 +64,20 @@ public abstract class ArchetypeBehavior : ScriptableObject
             c.strafeClockwise = !c.strafeClockwise;
             c.strafeTimer = interval;
         }
+    }
+    // INPUT:  ctx
+    // OUTPUT: true if the frame is consumed by an ability (behavior should return)
+    // USE:    first line of every Engage()
+    protected bool HandleAbilities(EnemyContext c)
+    {
+        if (c.abilities == null) return false;
+        if (c.abilities.IsBusy) 
+        { 
+            c.movement.Stop(); 
+            c.aim.AimAt(c.targetPos); 
+            SetFiring(c, false); 
+            return true; 
+        }
+        return c.abilities.TryUse(c);
     }
 }

@@ -16,6 +16,9 @@ public class GridManager : MonoBehaviour
     [SerializeField] private float skinWidth = 0.05f;
     [SerializeField] private LayerMask obstacleMask;
 
+    private bool dirty;
+    public void MarkDirty() => dirty = true;
+    private void LateUpdate() { if (dirty) { dirty = false; BuildWalkableGrid(); } }   // batched: 10 crates dying in one frame = one rebuild
     [Header("Debug")]
     [SerializeField] private bool showGizmos = true;
 
@@ -33,6 +36,8 @@ public class GridManager : MonoBehaviour
         BuildWalkableGrid();
     }
 
+
+    // ── Pathfinding ─────────────────────────────────
     public void BuildWalkableGrid()
     {
         walkableGrid = new bool[width, height];

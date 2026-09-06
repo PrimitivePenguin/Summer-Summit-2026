@@ -16,17 +16,13 @@ public class Bullet : MonoBehaviour
     private Vector3 spawnPos;
     int damage;
     
-    public void Initialize(float rotation, float speed, float despawnDist, int damage, LayerMask collisionLayers)
+    private BulletSpawnData data;
+    public void Initialize(float rotation, BulletSpawnData data)
     {
+        this.data = data;
         transform.rotation = Quaternion.Euler(0, 0, rotation);
-        this.speed = speed;
-        this.despawnDist = despawnDist;
-        this.damage = damage;
-        this.collisionLayers = collisionLayers;
-        spawnPos = transform.position; // store the spawn position of the bullet
-        this.lifeTime = despawnDist / speed; // calculate the lifetime of the bullet based on its speed and despawn distance
-        timer = lifeTime;
-
+        speed = data.bulletSpeed; despawnDist = data.bulletDespawnDist; damage = data.damage; collisionLayers = data.collisionLayers;
+        lifeTime = despawnDist / speed; timer = lifeTime;
     }
 
     void Update()
@@ -44,16 +40,17 @@ public class Bullet : MonoBehaviour
         timer = lifeTime; // reset the timer to the lifetime value
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D col)
     {
-        if (((1 << collision.gameObject.layer) & collisionLayers) == 0)
-            return;
-
-        Damageable target = collision.GetComponentInParent<Damageable>();
-        if (target != null){
-            target.TakeDamage(damage);
-        }
-
+        if (((1 << col.gameObject.layer) & collisionLayers) == 0) return;
+        if (data != null && data.isAoe) Explode();
+        else col.GetComponentInParent<Damageable>()?.TakeDamage(damage);
         gameObject.SetActive(false);
+    }
+    private void Explode()
+    {
+        foreach (var h in Physics2D.OverlapCircleAll(transform.position, data.aoeRadius, collisionLayers))
+            h.GetComponentInParent<Damageable>()?.TakeDamage(damage);
+        if (data.aoeEffectPrefab) Destroy(Instantiate(data.aoeEffectPrefab, transform.position, Quaternion.identity), 2f);
     }
 }

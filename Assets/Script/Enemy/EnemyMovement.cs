@@ -197,6 +197,12 @@ public class EnemyMovement : MonoBehaviour
         if (pathfinding != null) pathfinding.ComputePath(currentPatrolTarget);
     }
 
+    // ── Wave ───────────────────────────────────────────────────────────────
+    // INPUT:  route
+    // OUTPUT: patrol state reset to that route's first waypoint
+    // USE:    WaveSpawner right after Instantiate (before the enemy's Start runs)
+    public void SetRoute(PatrolRoute newRoute) { patrolRoute = newRoute; route = newRoute; patrolIndex = 0; }
+    
     // ── Physics ───────────────────────────────────────────────────────────────
 
     private void FixedUpdate()

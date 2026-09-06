@@ -20,10 +20,13 @@ MonoBehaviour:
   minRotation: 90
   maxRotation: 270
   numBullets: 1
-  isRandom: 1
+  isRandom: 0
   isParent: 0
   burstDelay: 0
-  cooldown: 4
+  isAoe: 0
+  aoeRadius: 1.5
+  aoeEffectPrefab: {fileID: 0}
+  cooldown: 5
   damage: 5
   collisionLayers:
     serializedVersion: 2

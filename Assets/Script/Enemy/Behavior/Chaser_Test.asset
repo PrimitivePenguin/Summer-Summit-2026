@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86e81ca253677d245951138eb30caf89, type: 3}
   m_Name: Chaser_Test
   m_EditorClassIdentifier: Assembly-CSharp::ChaserBehavior
-  aimTolerance: 15
-  attackRange: 2.2
+  aimTolerance: 30
+  attackRange: 5

@@ -8,6 +8,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 157504119698686694, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: m_text
+      value: EC
+      objectReference: {fileID: 0}
+    - target: {fileID: 3328865052417052395, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: maxHp
+      value: 20
+      objectReference: {fileID: 0}
     - target: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Name
       value: Elite_Chaser

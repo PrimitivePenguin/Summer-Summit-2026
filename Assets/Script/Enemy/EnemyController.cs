@@ -97,7 +97,10 @@ public class EnemyController : MonoBehaviour
             aim = aimController,
             bulletSpawn = bulletSpawn,
             vision = vision,
-            anchor = defenseAnchor
+            anchor = defenseAnchor,
+            damageable = damageable, 
+            abilities = GetComponent<AbilityRunner>(), 
+            controller = this
         };
 
         state = EnemyState.Patrol;

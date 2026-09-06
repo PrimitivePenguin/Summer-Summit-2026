@@ -13,6 +13,7 @@ public class ChaserBehavior : ArchetypeBehavior
     // USE:    EnemyState.Engage
     public override void Engage(EnemyContext c)
     {
+        if (HandleAbilities(c)) return;   // abilities take priority over movement/firing
         c.aim.AimAt(c.targetPos);
 
         if (c.distToTarget <= attackRange)

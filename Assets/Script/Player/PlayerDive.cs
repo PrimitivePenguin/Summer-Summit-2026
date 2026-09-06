@@ -88,7 +88,7 @@ public class PlayerDive : MonoBehaviour
         var kb = Keyboard.current;
         if (kb != null)
         {
-            if (kb.eKey.wasPressedThisFrame || kb.eKey.wasPressedThisFrame)
+            if (kb.eKey.wasPressedThisFrame)
             {
                 if (!isSubmerged && currentAir >= diveCost)
                 {
@@ -104,15 +104,15 @@ public class PlayerDive : MonoBehaviour
         HandleAir();
     }
 
-    private void LateUpdate()
-    {
-        // Keep overhead bar pinned above the player and upright (ignores player sprite rotation)
-        if (overheadAirSlider != null)
-        {
-            overheadAirSlider.transform.position = transform.position + overheadOffset;
-            overheadAirSlider.transform.rotation = Quaternion.identity;
-        }
-    }
+    // private void LateUpdate()
+    // {
+    //     // Keep overhead bar pinned above the player and upright (ignores player sprite rotation)
+    //     if (overheadAirSlider != null)
+    //     {
+    //         overheadAirSlider.transform.position = transform.position + overheadOffset;
+    //         overheadAirSlider.transform.rotation = Quaternion.identity;
+    //     }
+    // }
 
     private void HandleAir()
     {

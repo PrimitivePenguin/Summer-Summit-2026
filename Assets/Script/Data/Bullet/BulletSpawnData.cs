@@ -16,6 +16,11 @@ public class BulletSpawnData : ScriptableObject
     public bool isParent;
     public float burstDelay;
 
+    [Header("AOE (rocket)")]
+    public bool isAoe;
+    public float aoeRadius = 1.5f;
+    public GameObject aoeEffectPrefab;
+
     [Header("Bullet Properties")]
     public float cooldown;
     public int damage;

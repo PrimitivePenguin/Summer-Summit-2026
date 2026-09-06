@@ -15,6 +15,7 @@ public class SkirmisherBehavior : ArchetypeBehavior
     // USE:    EnemyState.Engage
     public override void Engage(EnemyContext c)
     {
+        if (HandleAbilities(c)) return;   // abilities take priority over movement/firing
         c.aim.AimAt(c.targetPos);
         TickStrafeFlip(c, strafeSwitchInterval);
 

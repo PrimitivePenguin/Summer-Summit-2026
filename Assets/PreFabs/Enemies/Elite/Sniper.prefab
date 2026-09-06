@@ -12,6 +12,22 @@ PrefabInstance:
       propertyPath: m_text
       value: SNI
       objectReference: {fileID: 0}
+    - target: {fileID: 3125880654930458869, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: fovAngle
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 3125880654930458869, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: viewDistance
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 3328865052417052395, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: maxHp
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5662584623235150761, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      propertyPath: 'spawnDatas.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 501638776bd27aa4bb1d53fbdd59d740, type: 2}
     - target: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Name
       value: Sniper
@@ -19,14 +35,14 @@ PrefabInstance:
     - target: {fileID: 6114798753407890297, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: behavior
       value: 
-      objectReference: {fileID: 11400000, guid: 2b52d006dc5f81a419c6760e206c0af4, type: 2}
+      objectReference: {fileID: 11400000, guid: 1b0d01b1b9312214f976f8cdaaf281c1, type: 2}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 5.74
+      value: 3.84
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.92
+      value: 2.09
       objectReference: {fileID: 0}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.z
@@ -75,5 +91,28 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5535759437184892921}
   m_SourcePrefab: {fileID: 100100000, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+--- !u!1 &2535358726004770989 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
+  m_PrefabInstance: {fileID: 8596934597874284354}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5535759437184892921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2535358726004770989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 895c3a740fd99bf42b104aa949ba2629, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AbilityRunner
+  abilities:
+  - {fileID: 0}
+  decisionInterval: 5
