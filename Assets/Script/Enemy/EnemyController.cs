@@ -123,6 +123,7 @@ public class EnemyController : MonoBehaviour
         
         ctx.distToTarget = Vector2.Distance(transform.position, ctx.targetPos);
 
+
         switch (state)
         {
             case EnemyState.Idle:

@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 157504119698686694, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_text
-      value: ES
+      value: ED
       objectReference: {fileID: 0}
     - target: {fileID: 3328865052417052395, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: maxHp
@@ -18,12 +18,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6080164215454990319, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_Name
-      value: Elite_Skirmisher
+      value: Elite_Defender
       objectReference: {fileID: 0}
     - target: {fileID: 6114798753407890297, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: behavior
       value: 
-      objectReference: {fileID: 11400000, guid: b55997c29eac5cd4d866b85202acf530, type: 2}
+      objectReference: {fileID: 11400000, guid: 2b52d006dc5f81a419c6760e206c0af4, type: 2}
     - target: {fileID: 8273267412016147222, guid: b45b69a9abedae84cbba86e4b6b6ab66, type: 3}
       propertyPath: m_LocalPosition.x
       value: 5.74

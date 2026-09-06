@@ -58,7 +58,6 @@ public class AimController : MonoBehaviour
             currentAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, turnRate * Time.deltaTime);
 
         if (float.IsNaN(currentAngle)) currentAngle = targetAngle;
-
         ApplyRotation();
     }
 

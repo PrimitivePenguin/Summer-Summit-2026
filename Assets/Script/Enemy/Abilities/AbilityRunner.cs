@@ -30,6 +30,7 @@ public class AbilityRunner : MonoBehaviour
         decisionTimer = decisionInterval;
         for (int i = 0; i < abilities.Length; i++)
         {
+            if (abilities[i] == null) continue;
             if (cooldowns[i] > 0f || !abilities[i].CanUse(c)) continue;
             cooldowns[i] = abilities[i].cooldown;
             running = StartCoroutine(Run(abilities[i], c));
