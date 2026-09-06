@@ -313,17 +313,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0a67c571086cac540969a5f4c187eb3b, type: 3}
---- !u!114 &59787528 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3838195599383203199, guid: d8ebe8f70615b164898b6465ba5c5d23, type: 3}
-  m_PrefabInstance: {fileID: 1207227191}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abf23e30d81679c45bcde9b6526d4be0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PatrolRoute
 --- !u!1 &87542476
 GameObject:
   m_ObjectHideFlags: 0
@@ -1929,7 +1918,7 @@ Transform:
   m_GameObject: {fileID: 519420028}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.354288, y: 2.19878, z: -10}
+  m_LocalPosition: {x: 6.6001554, y: 2.2458599, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -10974,17 +10963,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 990862449}
   m_CullTransparentMesh: 1
---- !u!114 &1016654875 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5165250096810279425, guid: d76787d3ad9da4f4d8d9871f6fdd1126, type: 3}
-  m_PrefabInstance: {fileID: 853743211}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: abf23e30d81679c45bcde9b6526d4be0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PatrolRoute
 --- !u!1 &1018509737
 GameObject:
   m_ObjectHideFlags: 0
@@ -12502,82 +12480,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1059097172}
   m_CullTransparentMesh: 1
---- !u!1001 &1065863522
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 856948748265186084, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: turnRate
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 4.44164
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.87176
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1156807575301987098, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1745130089143834966, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_Constraints
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 4225760765634330708, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: m_Name
-      value: ShotgunChaser
-      objectReference: {fileID: 0}
-    - target: {fileID: 7388497202219580985, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: patrolRoute
-      value: 
-      objectReference: {fileID: 1016654875}
-    - target: {fileID: 9222164486636934703, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      propertyPath: senseDistance
-      value: 2
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 4225760765634330708, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1455423951}
-  m_SourcePrefab: {fileID: 100100000, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
 --- !u!1 &1107481469
 GameObject:
   m_ObjectHideFlags: 0
@@ -13598,35 +13500,6 @@ Transform:
   - {fileID: 381479277}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1455423942 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4225760765634330708, guid: 85b01e1b1f49033408c0265720a61e6d, type: 3}
-  m_PrefabInstance: {fileID: 1065863522}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1455423951
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1455423942}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
-  ROW: 40
-  COL: 40
-  cellSize: 1
-  gridOffset: {x: 0, y: 0}
-  collisionMask:
-    serializedVersion: 2
-    m_Bits: 0
-  collisionRadius: 0.25
-  nodeArriveThreshold: 0.35
-  staleDistanceCells: 4
-  drawPath: 1
-  drawGrid: 0
 --- !u!1 &1471422190
 GameObject:
   m_ObjectHideFlags: 0
@@ -16086,6 +15959,6 @@ SceneRoots:
   - {fileID: 876926225}
   - {fileID: 28529067}
   - {fileID: 8147480412911553171}
-  - {fileID: 1065863522}
   - {fileID: 719805493}
   - {fileID: 1207227191}
+  - {fileID: 853743211}

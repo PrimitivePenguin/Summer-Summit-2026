@@ -15,10 +15,10 @@ public class BulletManager : MonoBehaviour
 
     public static GameObject GetBullet(int layer, string bulletName)
     {
-        Debug.Log($"[BulletManager] Looking for: layer={layer}, name='{bulletName}', pool size={bullets.Count}");
+        // Debug.Log($"[BulletManager] Looking for: layer={layer}, name='{bulletName}', pool size={bullets.Count}");
         for (int i = 0; i < bullets.Count; i++)
         {
-            Debug.Log($"[BulletManager] Bullet {i}: active={bullets[i].activeInHierarchy}, layer={bullets[i].layer}, name='{bullets[i].name}'");
+            // Debug.Log($"[BulletManager] Bullet {i}: active={bullets[i].activeInHierarchy}, layer={bullets[i].layer}, name='{bullets[i].name}'");
             if (!bullets[i].activeInHierarchy && bullets[i].layer == layer && bullets[i].name == bulletName)
             {
             //     bullets[i].GetComponent<Bullet>().ResetTimer(); // reset the timer of the bullet    

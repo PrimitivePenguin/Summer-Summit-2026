@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2915961071868941477
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4329985456973436846}
+  - component: {fileID: 5165250096810279425}
+  m_Layer: 0
+  m_Name: AITest4PointPath
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4329985456973436846
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2915961071868941477}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5165250096810279425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2915961071868941477}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: abf23e30d81679c45bcde9b6526d4be0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PatrolRoute
+  waypoints:
+  - name: Waypoint 0
+    localPosition: {x: -3.6485538, y: 7.9819646, z: 0}
+    radius: 0
+  - name: Waypoint 1
+    localPosition: {x: 7.742983, y: 8.101123, z: 0}
+    radius: 0
+  - name: Waypoint 2
+    localPosition: {x: 6.7182198, y: 3.3824542, z: 0}
+    radius: 0
+  - name: Waypoint 3
+    localPosition: {x: -2.0041695, y: 0.23667431, z: 0}
+    radius: 0
+  mapBounds: {fileID: 0}
+  maxSampleAttempts: 8
+  toggleVisualization: 0
+  routeColor: {r: 0, g: 1, b: 1, a: 1}
+  waypointRadius: 1
+  showLabels: 1

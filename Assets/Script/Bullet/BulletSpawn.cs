@@ -62,7 +62,7 @@ public class BulletSpawn : MonoBehaviour
 
     public bool Fire()
     {   
-        Debug.Log($"[BulletSpawn.cs] - Fire() isBursting: {isBursting}");
+        // Debug.Log($"[BulletSpawn.cs] - Fire() isBursting: {isBursting}");
         if (isBursting || timer > 0f) {return false;} // Prevents another burst from starting while current is active
         isBursting = true;
         timer = GetSpawnData().cooldown + (GetSpawnData().burstDelay * (GetSpawnData().numBullets - 1)); // cooldown + burstdelay * numbullets
@@ -111,9 +111,9 @@ public class BulletSpawn : MonoBehaviour
 
     IEnumerator SpawnBurstCoroutine()
     {
-        Debug.Log($"[BulletSpawn.cs] - SpawnBurstCoroutine() started");
+        // Debug.Log($"[BulletSpawn.cs] - SpawnBurstCoroutine() started");
         BulletSpawnData data = GetSpawnData();
-        Debug.Log($"SpawnData: {data}, numBullets: {data?.numBullets}");
+        // Debug.Log($"SpawnData: {data}, numBullets: {data?.numBullets}");
         // Check coroutine
         // Debug.Log($"Coroutine started — numBullets: {data.numBullets}, burstDelay: {data.burstDelay}");
         rotations = new float[data.numBullets];
@@ -130,7 +130,7 @@ public class BulletSpawn : MonoBehaviour
 
         for (int i = 0; i < data.numBullets; i++)
         {
-            Debug.Log($"Loop iteration {i}, gameObject active: {gameObject.activeInHierarchy}");
+            // Debug.Log($"Loop iteration {i}, gameObject active: {gameObject.activeInHierarchy}");
             if (this == null || !gameObject.activeInHierarchy)
             {
                 // Debug.Log("Coroutine aborted — object inactive"); // is the guard killing it?
@@ -150,8 +150,8 @@ public class BulletSpawn : MonoBehaviour
 
     void SpawnSingleBullet(BulletSpawnData data, int i)
     {
-        Debug.Log($"BulletSpawn object: {gameObject.name}, position: {transform.position}");
-        Debug.Log($"BulletSpawn parent: {transform.parent?.name}, parent position: {transform.parent?.position}");
+        // Debug.Log($"BulletSpawn object: {gameObject.name}, position: {transform.position}");
+        // Debug.Log($"BulletSpawn parent: {transform.parent?.name}, parent position: {transform.parent?.position}");
         int layer = bulletLayer;
         string bulletName = data.name;
     
