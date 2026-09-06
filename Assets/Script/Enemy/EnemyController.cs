@@ -2,21 +2,14 @@ using UnityEngine;
 
 public enum EnemyState
 {
-    Idle,        // player outside load range, no awareness
-    Patrol,      // awareness zero, player loaded — route or guard-wander
-    Engage,      // live contact (cone or proximity sense)
-    Investigate, // lost contact, awareness > 0 — head for last known position
-    Search       // arrived at last known position — sweep in place
+    Idle,        // Player outside load range, no awareness
+    Patrol,      // Awareness zero, player loaded — route or guard-wander
+    Engage,      // Live contact (cone or proximity sense)
+    Investigate, // Lost contact, awareness > 0 — head for last known position
+    Search       // Arrived at last known position — sweep in place
 }
 
 // Decides WHICH state the enemy is in. HOW it executes is the ArchetypeBehavior's job.
-//
-// FIXES IN THIS VERSION:
-//   EvaluateTransitions — Engage on vision.hasContact (cone OR sense). Previously only the
-//                         cone counted, so a point-blank player could never trigger firing.
-//   SetState            — unconditional Debug.Log removed; respects logTransitions.
-//   Update              — targetPos falls back to self when there is no valid fix.
-//   levelManager slot   — NEW inspector override for the LevelManager (null = singleton).
 public class EnemyController : MonoBehaviour
 {
     [Header("Behavior")]
@@ -52,46 +45,30 @@ public class EnemyController : MonoBehaviour
     private float stateTimer;
     private EnemyContext ctx;
 
-    // INPUT:  none
-    // OUTPUT: current state
-    // USE:    debug HUDs, gizmos
     public EnemyState CurrentState => state;
-
-    // INPUT:  levelManager slot, singleton
-    // OUTPUT: whichever LevelManager applies to this enemy (may be null)
-    // USE:    every LevelManager call in this file
     private LevelManager Level => levelManager != null ? levelManager : LevelManager.Instance;
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
-    // INPUT:  none
-    // OUTPUT: caches Damageable, subscribes HandleDeath
-    // USE:    Unity
-    void Awake()
+    private void Awake()
     {
         damageable = GetComponent<Damageable>();
         if (damageable != null) damageable.OnDeath += HandleDeath;
         else Debug.LogWarning($"[EnemyController] No Damageable on {name}");
     }
 
-    // INPUT:  none
-    // OUTPUT: unsubscribes death handler
-    // USE:    Unity
-    void OnDestroy()
+    private void OnDestroy()
     {
         if (damageable != null) damageable.OnDeath -= HandleDeath;
     }
 
-    // INPUT:  inspector refs, "Player" tag
-    // OUTPUT: resolves components, registers with LevelManager, builds EnemyContext
-    // USE:    Unity. REPLACES old Start (uses Level accessor)
-    void Start()
+    private void Start()
     {
         Level?.RegisterEnemy();
 
         if (bulletSpawn == null) bulletSpawn = GetComponentInChildren<BulletSpawn>();
         if (aimController == null) aimController = GetComponent<AimController>();
-        if (aimController == null) Debug.LogError($"[EnemyController] AimController must be on the ROOT of {name}");
+        if (aimController == null) aimController = GetComponentInChildren<AimController>();
 
         vision = GetComponent<EnemyVision>();
         movement = GetComponent<EnemyMovement>();
@@ -115,12 +92,9 @@ public class EnemyController : MonoBehaviour
         };
     }
 
-    // ── Frame loop ────────────────────────────────────────────────────────────
+    // ── Frame Loop ────────────────────────────────────────────────────────────
 
-    // INPUT:  vision state
-    // OUTPUT: transitions, refreshed context, one behavior call
-    // USE:    Unity. REPLACES old Update (targetPos guard)
-    void Update()
+    private void Update()
     {
         if (playerTransform == null || behavior == null || vision == null || ctx == null) return;
 
@@ -129,24 +103,24 @@ public class EnemyController : MonoBehaviour
 
         EvaluateTransitions();
 
-        if (state == EnemyState.Engage)      ctx.targetPos = playerTransform.position;
+        if (state == EnemyState.Engage)       ctx.targetPos = playerTransform.position;
         else if (vision.hasLastKnown)         ctx.targetPos = vision.lastKnownPosition;
         else                                  ctx.targetPos = transform.position;
+        
         ctx.distToTarget = Vector2.Distance(transform.position, ctx.targetPos);
 
         switch (state)
         {
-            case EnemyState.Idle:        movement.Stop();          break;
-            case EnemyState.Patrol:      behavior.Idle(ctx);       break;
-            case EnemyState.Engage:      behavior.Engage(ctx);     break;
+            case EnemyState.Idle:        movement.Stop();           break;
+            case EnemyState.Patrol:      movement.Patrol();         break; // Routes directly to your GridManager patrol
+            case EnemyState.Engage:      behavior.Engage(ctx);      break;
             case EnemyState.Investigate: behavior.Investigate(ctx); break;
-            case EnemyState.Search:      behavior.Search(ctx);     break;
+            case EnemyState.Search:      behavior.Search(ctx);      break;
         }
     }
 
-    // INPUT:  vision.hasContact, awareness, load range, stateTimer
-    // OUTPUT: may call SetState
-    // USE:    pure transition logic. REPLACES old EvaluateTransitions (hasContact)
+    // ── Transitions ───────────────────────────────────────────────────────────
+
     private void EvaluateTransitions()
     {
         if (vision.hasContact) { SetState(EnemyState.Engage); return; }
@@ -178,30 +152,36 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    // INPUT:  next state
-    // OUTPUT: exit hooks, state swap, enter hooks
-    // USE:    the ONLY place state-change side effects live. REPLACES old SetState (log gated)
     private void SetState(EnemyState next)
     {
         if (next == state) return;
         if (logTransitions) Debug.Log($"[EnemyController] {name}: {state} → {next}");
 
-        // EXIT
+        // EXIT hooks
         if (state == EnemyState.Search) movement.StopSearching();
 
         state = next;
         stateTimer = 0f;
 
-        // ENTER
+        // ENTER hooks
         switch (next)
         {
-            case EnemyState.Search:      movement.StartSearching(); break;
+            case EnemyState.Search:      
+                movement.StartSearching(); 
+                break;
+
             case EnemyState.Patrol:
                 vision.ForgetLastKnown();
                 movement.ResumePatrolFromNearest();
                 break;
-            case EnemyState.Investigate: stateTimer = investigateTimeout; break;
-            case EnemyState.Idle:        movement.Stop(); break;
+
+            case EnemyState.Investigate: 
+                stateTimer = investigateTimeout; 
+                break;
+
+            case EnemyState.Idle:        
+                movement.Stop(); 
+                break;
         }
 
         if (bulletSpawn != null && next != EnemyState.Engage)
@@ -210,9 +190,6 @@ public class EnemyController : MonoBehaviour
 
     // ── Death ─────────────────────────────────────────────────────────────────
 
-    // INPUT:  none (Damageable.OnDeath — fires once now)
-    // OUTPUT: unregisters, spawns effect, destroys self
-    // USE:    event handler
     private void HandleDeath()
     {
         Level?.UnregisterEnemy();
@@ -225,21 +202,17 @@ public class EnemyController : MonoBehaviour
 
     // ── Debug ─────────────────────────────────────────────────────────────────
 
-    // INPUT:  behavior, anchor
-    // OUTPUT: Defender leash gizmo
-    // USE:    Scene view, selected only
     private void OnDrawGizmosSelected()
     {
-        if (behavior is DefenderBehavior def)
+        if (behavior != null && behavior.GetType().Name.Contains("Defender"))
         {
             Vector3 centre = (Application.isPlaying && ctx != null)
                 ? (Vector3)ctx.anchor
                 : (defendPoint != null ? defendPoint.position : transform.position);
 
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(centre, def.GetDefenseRadius());
+            Gizmos.DrawWireSphere(centre, 3.5f);
 
-            // Draw a line from the enemy to the defend point so it is obvious in the scene view
             if (defendPoint != null)
             {
                 Gizmos.color = new Color(0f, 1f, 1f, 0.4f);
