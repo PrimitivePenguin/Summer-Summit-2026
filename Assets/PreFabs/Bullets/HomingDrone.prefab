@@ -1,0 +1,165 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &3397377713588052893
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.34333
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.65777
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3403214482938897274, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_Name
+      value: HomingDrone
+      objectReference: {fileID: 0}
+    - target: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 4775994642495144316, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_BodyType
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8031380247210804368, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      propertyPath: m_Color.g
+      value: 0.8576898
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 2060071682402528513, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3544538069109946980}
+    - targetCorrespondingSourceObject: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7871343737279036793}
+    - targetCorrespondingSourceObject: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8166076346110233087}
+    - targetCorrespondingSourceObject: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4765131669132129225}
+  m_SourcePrefab: {fileID: 100100000, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+--- !u!1 &1841725866035129388 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3939232322268860337, guid: bc9a9a2dd6cd34c48ad4761e73e7eaba, type: 3}
+  m_PrefabInstance: {fileID: 3397377713588052893}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3544538069109946980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841725866035129388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19be00974d554a44f8b71d99671fef19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Damageable
+  maxHp: 4
+  logDamage: 0
+--- !u!114 &7871343737279036793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841725866035129388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 130bc04e12f41164184cdbf7a614c7bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+  moveSpeed: 3
+  patrolSpeed: 1.5
+  fleeSpeed: 4
+  acceleration: 20
+  arriveRadius: 0.5
+  patrolRoute: {fileID: 0}
+  aimController: {fileID: 0}
+  searchSweepAngle: 50
+  searchSweepSpeed: 2
+  pathfinding: {fileID: 0}
+  repathInterval: 0.35
+  animator: {fileID: 0}
+--- !u!114 &8166076346110233087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841725866035129388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee554309330f01d4198c35b7dc23bb98, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyPathfinding
+  cornerArriveThreshold: 0.35
+  drawPath: 1
+--- !u!114 &4765131669132129225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1841725866035129388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e5782a0e29782748b6ddb980afb4b74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomingDrone
+  speed: 4
+  repathInterval: 0.3
+  contactDistance: 0.5
+  explosionRadius: 2
+  explosionDamage: 1
+  damageLayers:
+    serializedVersion: 2
+    m_Bits: 136
+  explosionEffectPrefab: {fileID: 0}
+  contactLayers:
+    serializedVersion: 2
+    m_Bits: 72

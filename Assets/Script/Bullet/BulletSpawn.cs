@@ -88,24 +88,22 @@ public class BulletSpawn : MonoBehaviour
         }
         return rotations;
     }
+    // INPUT:  none (reads curMinDeg / curMaxDeg, set by AimController via SetFiringArc)
+    // OUTPUT: rotations[] filled with evenly spaced world angles inside the current arc
+    // USE:    SpawnBurstCoroutine (and Awake pre-warm)
     public float[] DistributedRotations()
     {
-        for (int i = 0; i < GetSpawnData().numBullets; i++)
+        int n = GetSpawnData().numBullets;
+        for (int i = 0; i < n; i++)
         {
-            // only 1 bullet
-            if (GetSpawnData().numBullets == 1)
+            if (n == 1)
             {
-                rotations[i] = (GetSpawnData().minRotation + GetSpawnData().maxRotation) / 2; // set to middle
+                rotations[i] = (curMinDeg + curMaxDeg) / 2f;
                 break;
             }
-            var fraction = (float)i / ((float)GetSpawnData().numBullets - 1); // get the distribution btw each bullet
-            // set above to -1 cause it can count from 0
-            var difference = curMaxDeg - curMinDeg;
-            var fracDif = fraction * difference; // get the difference btw each bullet
-            rotations[i] = curMinDeg + fracDif; // set the rotation of each bullet
+            float fraction = (float)i / (n - 1);
+            rotations[i] = curMinDeg + fraction * (curMaxDeg - curMinDeg);
         }
-
-        // maybe make the order random -> shuffle random
         return rotations;
     }
 

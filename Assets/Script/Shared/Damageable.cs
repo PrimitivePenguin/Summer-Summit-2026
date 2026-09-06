@@ -4,7 +4,7 @@ using System;
 public class Damageable : MonoBehaviour
 {
     public int maxHp;
-    int currentHp;
+    public int currentHp;
 
     public bool isInvulnerable { get; set; }
     public bool IsDead { get; private set; }
@@ -18,7 +18,7 @@ public class Damageable : MonoBehaviour
     // INPUT:  maxHp
     // OUTPUT: currentHp = maxHp
     // USE:    Unity
-    void Start() => currentHp = maxHp;
+    void Awake() => currentHp = maxHp;
 
     // INPUT:  raw damage
     // OUTPUT: reduces HP, raises OnDamaged; raises OnDeath ONCE when HP hits 0

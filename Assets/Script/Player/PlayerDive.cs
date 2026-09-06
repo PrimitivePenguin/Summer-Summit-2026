@@ -53,7 +53,11 @@ public class PlayerDive : MonoBehaviour
 
     public bool IsSubmerged => isSubmerged;
     public float AirRatio => currentAir / maxAir;
+    [Header("Input Mode")]
+    [Tooltip("false = press E to dive, press E again to surface. true = hold E to stay under, release to surface.")]
+    [SerializeField] private bool holdToDive = false;
 
+    private bool surfaceQueued;
     private void Awake()
     {
         playerCol = GetComponent<Collider2D>();
@@ -78,28 +82,56 @@ public class PlayerDive : MonoBehaviour
         UpdateOverheadBar(forceUpdate: true);
     }
 
+    // INPUT:  none (called by keyboard shortcut and by DiveButton UI)
+    // OUTPUT: dives if surfaced with enough air; surfaces if submerged past min time
+    // USE:    Update (E key), DiveButton.OnPressed
+    public void ToggleDive()
+    {
+        if (Time.timeScale == 0f) return;   // ignore clicks while paused/cutscene
+
+        if (!isSubmerged && currentAir >= diveCost)
+            Dive();
+        else if (isSubmerged && submergedTimer <= 0f)
+            Surface(forcedByAirDepletion: false);
+    }
+
+    // INPUT:  none
+    // OUTPUT: true if pressing dive right now would do something
+    // USE:    DiveButton visual state (translucency)
+    public bool CanToggleDive => isSubmerged ? submergedTimer <= 0f : currentAir >= diveCost;
+
+    
+    // INPUT:  E key state, holdToDive mode
+    // OUTPUT: dive/surface routed by mode; queued surface honored once min-submerge elapses
+    // USE:    Unity
     private void Update()
     {
         if (isSubmerged && submergedTimer > 0f)
-        {
             submergedTimer -= Time.deltaTime;
-        }
 
         var kb = Keyboard.current;
         if (kb != null)
         {
-            if (kb.eKey.wasPressedThisFrame)
+            if (!holdToDive)
             {
-                if (!isSubmerged && currentAir >= diveCost)
-                {
+                if (kb.eKey.wasPressedThisFrame) ToggleDive();
+            }
+            else
+            {
+                if (kb.eKey.wasPressedThisFrame && !isSubmerged && currentAir >= diveCost)
                     Dive();
-                }
-                else if (isSubmerged && submergedTimer <= 0f)
-                {
-                    Surface(forcedByAirDepletion: false);
-                }
+                if (kb.eKey.wasReleasedThisFrame && isSubmerged)
+                    surfaceQueued = true;   // may still be inside min-submerge — queue it
             }
         }
+
+        // Hold mode: surface the moment the min-submerge window opens
+        if (surfaceQueued && isSubmerged && submergedTimer <= 0f)
+        {
+            surfaceQueued = false;
+            Surface(forcedByAirDepletion: false);
+        }
+        if (!isSubmerged) surfaceQueued = false;   // stale queue guard
 
         HandleAir();
     }
