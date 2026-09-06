@@ -3012,7 +3012,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c9a341c1fa24b8d4b8f797c403ae2c89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HpBar
-  damageable: {fileID: 0}
+  damageable: {fileID: 622533959}
 --- !u!114 &874494047
 MonoBehaviour:
   m_ObjectHideFlags: 0

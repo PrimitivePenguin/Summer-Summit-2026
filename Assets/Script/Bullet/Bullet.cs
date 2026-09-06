@@ -49,8 +49,12 @@ public class Bullet : MonoBehaviour
     }
     private void Explode()
     {
+        // INPUT:  data.aoeRadius, data.collisionLayers, data.damage
+        // OUTPUT: damages all targets in radius, spawns timed effect
+        // USE:    OnTriggerEnter2D when data.isAoe is true
         foreach (var h in Physics2D.OverlapCircleAll(transform.position, data.aoeRadius, collisionLayers))
             h.GetComponentInParent<Damageable>()?.TakeDamage(damage);
-        if (data.aoeEffectPrefab) Destroy(Instantiate(data.aoeEffectPrefab, transform.position, Quaternion.identity), 2f);
+        if (data.aoeEffectPrefab)
+            Destroy(Instantiate(data.aoeEffectPrefab, transform.position, Quaternion.identity), 0.15f);
     }
 }

@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ArtilleryStrikeAbility
   cooldown: 10
   telegraphDuration: 1.5
-  maxRange: 25
+  maxRange: 12
   requiresContact: 0
   telegraphPrefab: {fileID: 6353561392891745999, guid: a76965ac2dc05dd47afaa720c918afec, type: 3}
-  effectPrefab: {fileID: 3806318384936108070, guid: ea5938c7901efd241ac61418bddcef50, type: 3}
+  effectPrefab: {fileID: 3581097543939221288, guid: 07a80052ce7697d4d8cfb623acc732a8, type: 3}
   radius: 2
   damage: 6
   damageLayers:

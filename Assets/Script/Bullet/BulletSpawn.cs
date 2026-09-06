@@ -156,6 +156,14 @@ public class BulletSpawn : MonoBehaviour
         GameObject spawnedBullet = BulletManager.GetBullet(layer, bulletName);
         if (spawnedBullet == null)
         {
+            if (data.bulletResource == null)
+            {
+                // INPUT:  data with no prefab
+                // OUTPUT: one clear warning naming the enemy + asset, burst skipped
+                // USE:    catches unfilled BulletSpawnData assets without an engine stack trace
+                Debug.LogWarning($"[BulletSpawn] '{data.name}' on {transform.root.name} has no Bullet Resource — nothing spawned.", this);
+                return;
+            }
             spawnedBullet = Instantiate(data.bulletResource, transform.position, Quaternion.identity);
             spawnedBullet.name = data.name;
             BulletManager.AddBullet(spawnedBullet);
