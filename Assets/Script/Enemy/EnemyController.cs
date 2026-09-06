@@ -22,9 +22,14 @@ public class EnemyController : MonoBehaviour
     [Header("Level Manager (optional override — leave null to use LevelManager.Instance)")]
     [SerializeField] private LevelManager levelManager;
 
-    [Header("Defend Point (Defender archetype only)")]
+    [Header("Defend Post & Guard (Defender archetype only)")]
     [Tooltip("The position this enemy defends. Leave null to use its spawn position.")]
     [SerializeField] private Transform defendPoint;
+    [SerializeField] private float defenseRadius = 3.5f;
+    [SerializeField] private float postArriveRadius = 0.3f;
+    [SerializeField] private float guardSpinSpeed = 45f; // degrees per second
+    private Vector2 defenseAnchor;
+    private float currentSpinAngle;
 
     [Header("Investigation")]
     [SerializeField] private float investigateArriveRadius = 0.6f;
@@ -47,6 +52,7 @@ public class EnemyController : MonoBehaviour
 
     public EnemyState CurrentState => state;
     private LevelManager Level => levelManager != null ? levelManager : LevelManager.Instance;
+    private bool IsDefender => behavior != null && behavior.GetType().Name.Contains("Defender");
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
@@ -76,6 +82,9 @@ public class EnemyController : MonoBehaviour
         if (vision == null)   { Debug.LogError($"[EnemyController] EnemyVision missing on {name}"); return; }
         if (behavior == null) { Debug.LogError($"[EnemyController] No ArchetypeBehavior on {name}"); return; }
 
+        defenseAnchor = (defendPoint != null) ? (Vector2)defendPoint.position : (Vector2)transform.position;
+        currentSpinAngle = aimController != null ? aimController.GetFacingAngle() : transform.eulerAngles.z;
+
         GameObject player = GameObject.FindWithTag("Player");
         if (player != null) playerTransform = player.transform;
 
@@ -88,8 +97,10 @@ public class EnemyController : MonoBehaviour
             aim = aimController,
             bulletSpawn = bulletSpawn,
             vision = vision,
-            anchor = (defendPoint != null) ? (Vector2)defendPoint.position : (Vector2)transform.position
+            anchor = defenseAnchor
         };
+
+        state = EnemyState.Patrol;
     }
 
     // ── Frame Loop ────────────────────────────────────────────────────────────
@@ -111,11 +122,52 @@ public class EnemyController : MonoBehaviour
 
         switch (state)
         {
-            case EnemyState.Idle:        movement.Stop();           break;
-            case EnemyState.Patrol:      movement.Patrol();         break; // Routes directly to your GridManager patrol
-            case EnemyState.Engage:      behavior.Engage(ctx);      break;
-            case EnemyState.Investigate: behavior.Investigate(ctx); break;
-            case EnemyState.Search:      behavior.Search(ctx);      break;
+            case EnemyState.Idle:
+                if (IsDefender) HandleDefenderGuard();
+                else movement.Patrol();
+                break;
+
+            case EnemyState.Patrol:
+                if (IsDefender) HandleDefenderGuard();
+                else movement.Patrol();
+                break;
+
+            case EnemyState.Engage:      
+                behavior.Engage(ctx);      
+                break;
+
+            case EnemyState.Investigate: 
+                behavior.Investigate(ctx); 
+                break;
+
+            case EnemyState.Search:      
+                behavior.Search(ctx);      
+                break;
+        }
+    }
+
+    // ── Defender Return & Spin ────────────────────────────────────────────────
+
+    private void HandleDefenderGuard()
+    {
+        float distToPost = Vector2.Distance(transform.position, defenseAnchor);
+
+        if (distToPost > postArriveRadius)
+        {
+            // 1. Walk back to post
+            movement.MoveToward(defenseAnchor);
+            if (aimController != null) aimController.AimAt(defenseAnchor);
+        }
+        else
+        {
+            // 2. Arrived at post: stand still and slowly rotate 360°
+            movement.Stop();
+
+            currentSpinAngle = (currentSpinAngle + guardSpinSpeed * Time.deltaTime) % 360f;
+            if (aimController != null)
+            {
+                aimController.AimAtAngle(currentSpinAngle);
+            }
         }
     }
 
@@ -128,12 +180,11 @@ public class EnemyController : MonoBehaviour
         switch (state)
         {
             case EnemyState.Idle:
-                if (vision.IsPlayerInLoadRange()) SetState(EnemyState.Patrol);
+                SetState(EnemyState.Patrol);
                 break;
 
             case EnemyState.Patrol:
                 if (vision.awareness > 0f) SetState(EnemyState.Investigate);
-                else if (!vision.IsPlayerInLoadRange()) SetState(EnemyState.Idle);
                 break;
 
             case EnemyState.Engage:
@@ -141,8 +192,16 @@ public class EnemyController : MonoBehaviour
                 break;
 
             case EnemyState.Investigate:
-                if (movement.IsInRange(vision.lastKnownPosition, investigateArriveRadius) || stateTimer <= 0f)
+                // Defenders won't leave their post to chase ghosts
+                if (IsDefender)
+                {
+                    if (vision.awareness <= 0.2f || stateTimer <= (investigateTimeout - 2.5f))
+                        SetState(EnemyState.Search);
+                }
+                else if (movement.IsInRange(vision.lastKnownPosition, investigateArriveRadius) || stateTimer <= 0f)
+                {
                     SetState(EnemyState.Search);
+                }
                 break;
 
             case EnemyState.Search:
@@ -157,13 +216,11 @@ public class EnemyController : MonoBehaviour
         if (next == state) return;
         if (logTransitions) Debug.Log($"[EnemyController] {name}: {state} → {next}");
 
-        // EXIT hooks
         if (state == EnemyState.Search) movement.StopSearching();
 
         state = next;
         stateTimer = 0f;
 
-        // ENTER hooks
         switch (next)
         {
             case EnemyState.Search:      
@@ -172,7 +229,16 @@ public class EnemyController : MonoBehaviour
 
             case EnemyState.Patrol:
                 vision.ForgetLastKnown();
-                movement.ResumePatrolFromNearest();
+
+                if (IsDefender)
+                {
+                    // Sync initial spin angle to wherever it was currently looking
+                    if (aimController != null) currentSpinAngle = aimController.GetFacingAngle();
+                }
+                else
+                {
+                    movement.ResumePatrolFromNearest();
+                }
                 break;
 
             case EnemyState.Investigate: 
@@ -180,7 +246,6 @@ public class EnemyController : MonoBehaviour
                 break;
 
             case EnemyState.Idle:        
-                movement.Stop(); 
                 break;
         }
 
@@ -204,14 +269,14 @@ public class EnemyController : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (behavior != null && behavior.GetType().Name.Contains("Defender"))
+        if (IsDefender)
         {
-            Vector3 centre = (Application.isPlaying && ctx != null)
-                ? (Vector3)ctx.anchor
+            Vector3 centre = Application.isPlaying
+                ? (Vector3)defenseAnchor
                 : (defendPoint != null ? defendPoint.position : transform.position);
 
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(centre, 3.5f);
+            Gizmos.DrawWireSphere(centre, defenseRadius);
 
             if (defendPoint != null)
             {

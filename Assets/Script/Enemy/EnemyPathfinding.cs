@@ -25,23 +25,20 @@ public class EnemyPathfinding : MonoBehaviour
         return HasPath;
     }
 
-    // Pops path corners as the enemy reaches them along arbitrary slopes
     public Vector2 GetCurrentSteeringTarget(Vector2 fallback)
     {
         if (currentPath == null || currentPath.Count == 0) 
             return fallback;
 
-        // Only advance to the next node if we are close to the CURRENT target node
         if (Vector2.Distance(transform.position, currentPath[0]) < cornerArriveThreshold)
         {
             currentPath.RemoveAt(0);
         }
 
-        // Return the active node if available; only use fallback if path is fully traversed
         return currentPath.Count > 0 ? currentPath[0] : fallback;
     }
 
-    // Aliases to support both naming conventions seamlessly
+    // Aliases to support all calling conventions
     public Vector2 GetNextWaypoint(Vector2 fallback) => GetCurrentSteeringTarget(fallback);
     public Vector2 GetNextWayPoint(Vector2 fallback) => GetCurrentSteeringTarget(fallback);
 

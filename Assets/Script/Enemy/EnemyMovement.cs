@@ -1,17 +1,15 @@
 using UnityEngine;
 
-// Phase 1. Update - Sets direction enemy wants to go to 
-// Phase 2. FixedUpdate - Applies that direction to the Rigidbody2D
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyMovement : MonoBehaviour
 {
     [Header("Speeds")]
-    [SerializeField] private float moveSpeed = 3f;      // chase speed
-    [SerializeField] private float patrolSpeed = 1.5f;  // patrol speed
-    [SerializeField] private float fleeSpeed = 4f;      // retreat speed
+    [SerializeField] private float moveSpeed = 3f;
+    [SerializeField] private float patrolSpeed = 1.5f;
+    [SerializeField] private float fleeSpeed = 4f;
 
     [Header("Steering")]
-    [SerializeField] private float acceleration = 20f;  // velocity ramp (0 = instant)
+    [SerializeField] private float acceleration = 20f;
     [SerializeField] private float arriveRadius = 0.5f; // Must stay larger than corner threshold (0.35f)
 
     [Header("Patrol")]
@@ -20,7 +18,7 @@ public class EnemyMovement : MonoBehaviour
     [Header("Search Settings")]
     [SerializeField] private AimController aimController;
     [SerializeField] private float searchSweepAngle = 50f;
-    [SerializeField] private float searchSweepSpeed = 2f; // oscillation speed
+    [SerializeField] private float searchSweepSpeed = 2f;
 
     [Header("Pathfinding")]
     [SerializeField] private EnemyPathfinding pathfinding;
@@ -47,7 +45,6 @@ public class EnemyMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         if (animator == null) animator = GetComponent<Animator>();
 
-        // Enforce top-down physics safety so physical bumps never spin the body
         rb.gravityScale = 0f;
         rb.freezeRotation = true;
         rb.angularVelocity = 0f;
@@ -75,8 +72,6 @@ public class EnemyMovement : MonoBehaviour
         this.fleeSpeed = fleeSpeed;
     }
 
-    // ── Search Hooks (needed by EnemyController) ──────────────────────────────
-
     public bool IsSearching() => isSearching;
 
     public void StartSearching()
@@ -102,14 +97,10 @@ public class EnemyMovement : MonoBehaviour
 
     public void StopSearching() => isSearching = false;
 
-    // ── Facing ────────────────────────────────────────────────────────────────
-
     public void FaceToward(Vector2 target)
     {
         if (aimController != null) aimController.AimAt(target);
     }
-
-    // ── Commands ──────────────────────────────────────────────────────────────
 
     public void MoveToward(Vector2 target) => SetDesiredToward(target, moveSpeed);
 
@@ -146,9 +137,7 @@ public class EnemyMovement : MonoBehaviour
     }
 
     public void Move(Vector2 direction, float speed) => SetDesired(direction.normalized * speed);
-
     public void Stop() => SetDesired(Vector2.zero);
-
     public bool IsInRange(Vector2 target, float range) => Vector2.Distance(transform.position, target) < range;
 
     // ── Patrol ────────────────────────────────────────────────────────────────
@@ -163,7 +152,7 @@ public class EnemyMovement : MonoBehaviour
 
         float distToTarget = Vector2.Distance(transform.position, currentPatrolTarget);
 
-        // 1. Arrived at final waypoint -> advance index
+        // 1. Advance to next index ONLY when physically reaching the waypoint
         if (distToTarget <= arriveRadius)
         {
             patrolIndex = (patrolIndex + 1) % route.WaypointCount;
@@ -172,13 +161,13 @@ public class EnemyMovement : MonoBehaviour
             return;
         }
 
-        // 2. If path got lost or emptied early, re-calculate
+        // 2. Recompute path if dropped or empty
         if (pathfinding != null && !pathfinding.HasPath)
         {
             pathfinding.ComputePath(currentPatrolTarget);
         }
 
-        // 3. Steer to the next path node
+        // 3. Steer directly to the active path node
         Vector2 nextStep = (pathfinding != null) 
             ? pathfinding.GetCurrentSteeringTarget(currentPatrolTarget) 
             : (Vector2)currentPatrolTarget;
@@ -192,16 +181,18 @@ public class EnemyMovement : MonoBehaviour
         if (route == null || route.WaypointCount == 0) return;
 
         float best = float.MaxValue;
+        int bestIndex = 0;
         for (int i = 0; i < route.WaypointCount; i++)
         {
             float d = Vector2.SqrMagnitude((Vector2)route.GetCenter(i) - (Vector2)transform.position);
             if (d < best) 
             { 
                 best = d; 
-                patrolIndex = i; 
+                bestIndex = i; 
             }
         }
 
+        patrolIndex = bestIndex;
         currentPatrolTarget = route.SampleWaypoint(patrolIndex);
         if (pathfinding != null) pathfinding.ComputePath(currentPatrolTarget);
     }
