@@ -63,14 +63,27 @@ public class BossArenaTrigger : MonoBehaviour
     }
 
     // INPUT:  none
-    // OUTPUT: doors up, pathing grid dirtied, camera confined, boss active + kill target, adds started
-    // USE:    Update; also callable from a cutscene or debug key
+    // OUTPUT: fires OnLocked (cutscene starts), doors stay down until cutscene calls Engage()
+    // USE:    Update (player enters bounds). Cutscene subscribes to OnLocked then calls Engage().
     public void Lock()
     {
         if (fired) return;
+        Debug.Log("[BossArenaTrigger] LOCK FIRED", this);
         fired = true;
         IsLocked = true;
 
+        // Doors stay closed — Engage() opens them after cutscene
+        GridManager.Instance?.MarkDirty();
+
+        // Notify cutscene first — it freezes time, plays, then calls Engage()
+        OnLocked?.Invoke();
+    }
+
+    // INPUT:  none
+    // OUTPUT: doors up, camera confined, boss active, kill target set, adds started
+    // USE:    BossCutscene.cs calls this when the cutscene finishes (after unfreeze)
+    public void Engage()
+    {
         foreach (GameObject d in doorBlockers) if (d != null) d.SetActive(true);
         GridManager.Instance?.MarkDirty();
 
@@ -82,21 +95,20 @@ public class BossArenaTrigger : MonoBehaviour
 
         if (boss != null)
         {
-            boss.SetActive(true);                                // EnemyController.Start → RegisterEnemy next frame
-            LevelManager.Instance?.SetKillTarget(bossDamageable); // no-op unless winCondition == KillTarget
-            if (unlockOnBossDeath && bossDamageable != null) bossDamageable.OnDeath += Unlock;
+            boss.SetActive(true);
+            LevelManager.Instance?.SetKillTarget(bossDamageable);
+            if (unlockOnBossDeath && bossDamageable != null)
+                bossDamageable.OnDeath += Unlock;
         }
 
         if (arenaWaves != null) arenaWaves.Begin();
-        if (bossLine != null) StartCoroutine(ShowLine());
 
         StartCoroutine(ReleaseSourceNextFrame());
-        OnLocked?.Invoke();
     }
 
     // INPUT:  none
-    // OUTPUT: spawn source released AFTER the boss has registered itself
-    // USE:    Lock. Releasing in the same frame would let EliminateAll fire on a still-uncounted boss.
+    // OUTPUT: spawn source released one frame after boss registers itself
+    // USE:    Engage
     private IEnumerator ReleaseSourceNextFrame()
     {
         yield return null;
